@@ -10,9 +10,9 @@ import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundExcepti
 import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
 import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
-import br.com.fiap.tech_challenge_2.domain.repository.UsuarioRepository;
+import br.com.fiap.tech_challenge_2.infrastructure.repository.UsuarioRepository;
 import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
-import br.com.fiap.tech_challenge_2.infrastruture.utils.PasswordHasher;
+import br.com.fiap.tech_challenge_2.infrastructure.utils.PasswordHasher;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;

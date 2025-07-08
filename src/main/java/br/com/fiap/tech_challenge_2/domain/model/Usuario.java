@@ -25,8 +25,6 @@ public class Usuario {
     @Column(length = 100)
     private String email;
 
-    private String perfil;
-
     @Column(nullable = false, length = 50, unique = true)
     private String login;
 
@@ -38,4 +36,8 @@ public class Usuario {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tipo_usuario_id")
+    private TipoUsuario tipoUsuario;
 }

@@ -1,6 +1,6 @@
 package br.com.fiap.tech_challenge_2.utils;
 
-import br.com.fiap.tech_challenge_2.infrastruture.utils.PasswordHasher;
+import br.com.fiap.tech_challenge_2.infrastructure.utils.PasswordHasher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
