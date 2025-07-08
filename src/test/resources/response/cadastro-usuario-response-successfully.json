@@ -1,0 +1,22 @@
+{
+  "status": "SUCCESS",
+  "data": {
+    "id": 1,
+    "nome": "nome",
+    "perfil": "PROPRIETARIO",
+    "email": "email@email.com",
+    "login": "login123",
+    "endereco": {
+      "logradouro": "logradouro",
+      "numero": "123",
+      "complemento": "complemento",
+      "bairro": "bairro",
+      "cidade": "cidade",
+      "estado": "estado",
+      "cep": "01234567"
+    },
+    "data_atualizacao": "2025-05-25"
+  },
+  "message": "Usuário cadastrado com sucesso",
+  "timestamp": "2025-05-25T23:28:23.885008"
+}
