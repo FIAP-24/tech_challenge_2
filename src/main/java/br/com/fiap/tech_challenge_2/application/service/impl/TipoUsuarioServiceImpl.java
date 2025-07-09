@@ -5,7 +5,7 @@ import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundExcepti
 import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
 import br.com.fiap.tech_challenge_2.infrastructure.repository.TipoUsuarioRepository;
 import br.com.fiap.tech_challenge_2.application.service.TipoUsuarioService;
-import br.com.fiap.tech_challenge_2.application.mapper.TipoUsuarioMapper;
+import br.com.fiap.tech_challenge_2.application.mapper.TipoUsuarioToDtoMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class TipoUsuarioServiceImpl implements TipoUsuarioService {
 
     private final TipoUsuarioRepository repository;
-    private final TipoUsuarioMapper mapper;
+    private final TipoUsuarioToDtoMapper mapper;
 
     @Override
     @Transactional

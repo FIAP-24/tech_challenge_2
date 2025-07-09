@@ -1,7 +1,7 @@
 package br.com.fiap.tech_challenge_2.application.mapper;
 
-import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
 import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
+import br.com.fiap.tech_challenge_2.infrastructure.Entity.TipoUsuarioEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -10,7 +10,7 @@ public interface TipoUsuarioMapper {
 
     TipoUsuarioMapper INSTANCE = Mappers.getMapper(TipoUsuarioMapper.class);
 
-    TipoUsuarioDTO toDTO(TipoUsuario tipoUsuario);
+    TipoUsuario toModel(TipoUsuarioEntity entity);
 
-    TipoUsuario toEntity(TipoUsuarioDTO dto);
+    TipoUsuarioEntity toEntity(TipoUsuario model);
 }

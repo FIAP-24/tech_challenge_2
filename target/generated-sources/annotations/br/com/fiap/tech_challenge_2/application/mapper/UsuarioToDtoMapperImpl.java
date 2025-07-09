@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
 )
 @Component
-public class UsuarioMapperImpl implements UsuarioMapper {
+public class UsuarioToDtoMapperImpl implements UsuarioToDtoMapper {
 
     @Override
     public UsuarioResponse toResponse(Usuario usuario) {

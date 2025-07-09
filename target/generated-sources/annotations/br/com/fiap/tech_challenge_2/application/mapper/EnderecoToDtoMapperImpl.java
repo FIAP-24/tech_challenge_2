@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
 )
 @Component
-public class EnderecoMapperImpl implements EnderecoMapper {
+public class EnderecoToDtoMapperImpl implements EnderecoToDtoMapper {
 
     @Override
     public EnderecoDTO toEnderecoDTO(Endereco endereco) {

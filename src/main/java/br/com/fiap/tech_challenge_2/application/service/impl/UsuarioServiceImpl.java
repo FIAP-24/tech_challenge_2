@@ -7,8 +7,8 @@ import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
 import br.com.fiap.tech_challenge_2.interfaces.exception.AuthenticationException;
 import br.com.fiap.tech_challenge_2.interfaces.exception.DuplicateResourceException;
 import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundException;
-import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
-import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
+import br.com.fiap.tech_challenge_2.application.mapper.EnderecoToDtoMapper;
+import br.com.fiap.tech_challenge_2.application.mapper.UsuarioToDtoMapper;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import br.com.fiap.tech_challenge_2.infrastructure.repository.UsuarioRepository;
 import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
@@ -26,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordHasher passwordHasher;
-    private final UsuarioMapper usuarioMapper;
-    private final EnderecoMapper enderecoMapper;
+    private final UsuarioToDtoMapper usuarioToDtoMapper;
+    private final EnderecoToDtoMapper enderecoToDTOMapper;
 
 
   @Override
@@ -41,18 +41,18 @@ import org.springframework.transaction.annotation.Transactional;
                 throw new DuplicateResourceException("Login já está em uso");
               });
 
-      Usuario usuario = usuarioMapper.toEntity(request);
+      Usuario usuario = usuarioToDtoMapper.toEntity(request);
       usuario.setSenha(passwordHasher.hashPassword(request.senha()));
 
       Usuario saved = usuarioRepository.save(usuario);
-      return usuarioMapper.toResponse(saved);
+      return usuarioToDtoMapper.toResponse(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Set<UsuarioResponse> findAll() {
       return usuarioRepository.findAll().stream()
-          .map(usuarioMapper::toResponse)
+          .map(usuarioToDtoMapper::toResponse)
           .collect(Collectors.toSet());
     }
 
@@ -61,7 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
     public UsuarioResponse findById(Long id) {
       return usuarioRepository
           .findById(id)
-          .map(usuarioMapper::toResponse)
+          .map(usuarioToDtoMapper::toResponse)
           .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + id));
     }
 
@@ -96,7 +96,7 @@ import org.springframework.transaction.annotation.Transactional;
       updateUsuario(request, existingUsuario);
 
       Usuario updated = usuarioRepository.save(existingUsuario);
-      return usuarioMapper.toResponse(updated);
+      return usuarioToDtoMapper.toResponse(updated);
     }
 
       private void updateUsuario(UsuarioEditRequest request, Usuario existingUsuario) {
@@ -113,7 +113,7 @@ import org.springframework.transaction.annotation.Transactional;
 
     private void updateEndereco(UsuarioEditRequest request, Usuario existingUsuario) {
       if (existingUsuario.getEndereco() == null) {
-        existingUsuario.setEndereco(enderecoMapper.toEndereco(request.endereco()));
+        existingUsuario.setEndereco(enderecoToDTOMapper.toEndereco(request.endereco()));
       }else {
         existingUsuario.getEndereco().setBairro((request.endereco().bairro() != null && !request.endereco().bairro().isBlank() ? request.endereco().bairro() : existingUsuario.getEndereco().getBairro()));
         existingUsuario.getEndereco().setCidade((request.endereco().cidade() != null && !request.endereco().cidade().isBlank() ? request.endereco().cidade() : existingUsuario.getEndereco().getCidade()));
