@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnderecoMapperTest {
+public class EnderecoEntityMapperTest {
     private final EnderecoMapper mapper = EnderecoMapper.INSTANCE;
 
     @Test

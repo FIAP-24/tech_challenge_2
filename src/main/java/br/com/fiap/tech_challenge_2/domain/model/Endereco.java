@@ -1,50 +1,121 @@
 package br.com.fiap.tech_challenge_2.domain.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Table(name = "endereco")
 public class Endereco {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O logradouro é obrigatório")
-    @Size(max = 100, message = "O logradouro deve ter no máximo 100 caracteres")
     private String logradouro;
 
-    @NotBlank(message = "O número é obrigatório")
-    @Size(max = 10, message = "O número deve ter no máximo 10 caracteres")
     private String numero;
 
-    @Size(max = 50, message = "O complemento deve ter no máximo 50 caracteres")
     private String complemento;
 
-    @NotBlank(message = "O bairro é obrigatório")
-    @Size(max = 50, message = "O bairro deve ter no máximo 50 caracteres")
     private String bairro;
 
-    @NotBlank(message = "A cidade é obrigatória")
-    @Size(max = 50, message = "A cidade deve ter no máximo 50 caracteres")
     private String cidade;
 
-    @NotBlank(message = "O estado é obrigatório")
-    @Size(min = 2, max = 2, message = "O estado deve ter exatamente 2 caracteres")
     private String estado;
 
-    @NotBlank(message = "O CEP é obrigatório")
-    @Size(min = 8, max = 8, message = "O CEP deve ter exatamente 8 dígitos")
-    private String cep;
+   private String cep;
 
-    @OneToOne(mappedBy = "endereco")
-    private Usuario usuario;
+   private Usuario usuario;
+
+    private Restaurante restaurante;
+
+    public Endereco() {
+    }
+
+    public Endereco(Long id, String logradouro, String numero, String complemento, String bairro, String cidade, String estado, String cep) {
+        this.id = id;
+        this.logradouro = logradouro;
+        this.numero = numero;
+        this.complemento = complemento;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.estado = estado;
+        this.cep = cep;
+    }
+
+    // Getters and Setters
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLogradouro() {
+        return logradouro;
+    }
+
+    public void setLogradouro(String logradouro) {
+        this.logradouro = logradouro;
+    }
+
+    public String getNumero() {
+        return numero;
+    }
+
+    public void setNumero(String numero) {
+        this.numero = numero;
+    }
+
+    public String getComplemento() {
+        return complemento;
+    }
+
+    public void setComplemento(String complemento) {
+        this.complemento = complemento;
+    }
+
+    public String getBairro() {
+        return bairro;
+    }
+
+    public void setBairro(String bairro) {
+        this.bairro = bairro;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getCep() {
+        return cep;
+    }
+
+    public void setCep(String cep) {
+        this.cep = cep;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Restaurante getRestaurante() {
+        return restaurante;
+    }
+
+    public void setRestaurante(Restaurante restaurante) {
+        this.restaurante = restaurante;
+    }
 }

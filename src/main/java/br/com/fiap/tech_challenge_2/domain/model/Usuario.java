@@ -1,43 +1,87 @@
 package br.com.fiap.tech_challenge_2.domain.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "usuario",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"login"})})
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+
 public class Usuario {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(length = 100)
     private String email;
 
-    @Column(nullable = false, length = 50, unique = true)
     private String login;
 
-    @Column(nullable = false)
     private String senha;
 
     private LocalDate dataUpdate;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "endereco_id")
     private Endereco endereco;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_usuario_id")
     private TipoUsuario tipoUsuario;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public LocalDate getDataUpdate() {
+        return dataUpdate;
+    }
+
+    public void setDataUpdate(LocalDate dataUpdate) {
+        this.dataUpdate = dataUpdate;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
+
+    public TipoUsuario getTipoUsuario() {
+        return tipoUsuario;
+    }
+
+    public void setTipoUsuario(TipoUsuario tipoUsuario) {
+        this.tipoUsuario = tipoUsuario;
+    }
 }

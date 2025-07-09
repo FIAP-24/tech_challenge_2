@@ -50,7 +50,7 @@ import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class UsuarioControllerTest {
+public class UsuarioEntityControllerTest {
 
     @LocalServerPort
     private int port;

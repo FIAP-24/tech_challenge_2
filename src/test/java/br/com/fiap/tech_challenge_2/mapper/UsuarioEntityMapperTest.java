@@ -20,7 +20,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class UsuarioMapperTest {
+class UsuarioEntityMapperTest {
 
     private final UsuarioMapper mapper = UsuarioMapper.INSTANCE;
     private final EnderecoMapper enderecoMapper = EnderecoMapper.INSTANCE;
