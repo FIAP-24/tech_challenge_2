@@ -5,6 +5,8 @@ import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioLoginRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
+import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
+import br.com.fiap.tech_challenge_2.application.mapper.UsuarioRequestMapper;
 import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +25,7 @@ import java.util.Set;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioRequestMapper usuarioResquestMapper;
 
 
     @Operation(summary = "Lista todos os usuários.")
@@ -42,7 +45,8 @@ public class UsuarioController {
     @Operation(summary = "Cria um novo usuário.")
     @PostMapping
     public ResponseEntity<ApiResponse<UsuarioResponse>> create(@Valid @RequestBody UsuarioRequest usuarioRequest) {
-        UsuarioResponse created = usuarioService.save(usuarioRequest);
+
+        UsuarioResponse created = usuarioService.save(usuarioResquestMapper.toEntity(usuarioRequest));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(created, "Usuário cadastrado com sucesso"));
