@@ -1,43 +1,44 @@
 package br.com.fiap.tech_challenge_2.domain.model;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "usuario",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"login"})})
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Usuario {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, length = 100)
     private String nome;
-
-    @Column(length = 100)
     private String email;
-
-    @Column(nullable = false, length = 50, unique = true)
     private String login;
-
-    @Column(nullable = false)
     private String senha;
-
     private LocalDate dataUpdate;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "endereco_id")
     private Endereco endereco;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_usuario_id")
     private TipoUsuario tipoUsuario;
+
+    // Domain business logic methods
+    public boolean isValidForRegistration() {
+        return nome != null && !nome.trim().isEmpty() &&
+               login != null && !login.trim().isEmpty() &&
+               senha != null && !senha.trim().isEmpty();
+    }
+
+    public void updatePassword(String newPassword) {
+        this.senha = newPassword;
+        this.dataUpdate = LocalDate.now();
+    }
+
+    public void updateProfile(String nome, String email) {
+        if (nome != null && !nome.trim().isEmpty()) {
+            this.nome = nome;
+        }
+        if (email != null && !email.trim().isEmpty()) {
+            this.email = email;
+        }
+        this.dataUpdate = LocalDate.now();
+    }
 }

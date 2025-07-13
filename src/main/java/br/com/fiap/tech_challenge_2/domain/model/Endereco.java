@@ -1,50 +1,71 @@
 package br.com.fiap.tech_challenge_2.domain.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "endereco")
 public class Endereco {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "O logradouro é obrigatório")
-    @Size(max = 100, message = "O logradouro deve ter no máximo 100 caracteres")
     private String logradouro;
-
-    @NotBlank(message = "O número é obrigatório")
-    @Size(max = 10, message = "O número deve ter no máximo 10 caracteres")
     private String numero;
-
-    @Size(max = 50, message = "O complemento deve ter no máximo 50 caracteres")
     private String complemento;
-
-    @NotBlank(message = "O bairro é obrigatório")
-    @Size(max = 50, message = "O bairro deve ter no máximo 50 caracteres")
     private String bairro;
-
-    @NotBlank(message = "A cidade é obrigatória")
-    @Size(max = 50, message = "A cidade deve ter no máximo 50 caracteres")
     private String cidade;
-
-    @NotBlank(message = "O estado é obrigatório")
-    @Size(min = 2, max = 2, message = "O estado deve ter exatamente 2 caracteres")
     private String estado;
-
-    @NotBlank(message = "O CEP é obrigatório")
-    @Size(min = 8, max = 8, message = "O CEP deve ter exatamente 8 dígitos")
     private String cep;
 
-    @OneToOne(mappedBy = "endereco")
-    private Usuario usuario;
+    // Domain business logic methods
+    public boolean isValid() {
+        return logradouro != null && !logradouro.trim().isEmpty() &&
+               numero != null && !numero.trim().isEmpty() &&
+               bairro != null && !bairro.trim().isEmpty() &&
+               cidade != null && !cidade.trim().isEmpty() &&
+               estado != null && !estado.trim().isEmpty() &&
+               cep != null && !cep.trim().isEmpty();
+    }
+
+    public String getFullAddress() {
+        StringBuilder address = new StringBuilder();
+        address.append(logradouro).append(", ").append(numero);
+        
+        if (complemento != null && !complemento.trim().isEmpty()) {
+            address.append(" - ").append(complemento);
+        }
+        
+        address.append(" - ").append(bairro)
+               .append(", ").append(cidade)
+               .append(" - ").append(estado)
+               .append(", CEP: ").append(cep);
+        
+        return address.toString();
+    }
+
+    public void updateAddress(String logradouro, String numero, String complemento, 
+                            String bairro, String cidade, String estado, String cep) {
+        if (logradouro != null && !logradouro.trim().isEmpty()) {
+            this.logradouro = logradouro.trim();
+        }
+        if (numero != null && !numero.trim().isEmpty()) {
+            this.numero = numero.trim();
+        }
+        if (complemento != null) {
+            this.complemento = complemento.trim();
+        }
+        if (bairro != null && !bairro.trim().isEmpty()) {
+            this.bairro = bairro.trim();
+        }
+        if (cidade != null && !cidade.trim().isEmpty()) {
+            this.cidade = cidade.trim();
+        }
+        if (estado != null && !estado.trim().isEmpty()) {
+            this.estado = estado.trim();
+        }
+        if (cep != null && !cep.trim().isEmpty()) {
+            this.cep = cep.trim();
+        }
+    }
 }

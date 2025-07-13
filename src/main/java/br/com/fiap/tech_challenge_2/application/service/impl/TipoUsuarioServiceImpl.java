@@ -3,7 +3,7 @@ package br.com.fiap.tech_challenge_2.application.service.impl;
 import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
 import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundException;
 import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
-import br.com.fiap.tech_challenge_2.infrastructure.repository.TipoUsuarioRepository;
+import br.com.fiap.tech_challenge_2.domain.repository.TipoUsuarioRepository;
 import br.com.fiap.tech_challenge_2.application.service.TipoUsuarioService;
 import br.com.fiap.tech_challenge_2.application.mapper.TipoUsuarioMapper;
 
