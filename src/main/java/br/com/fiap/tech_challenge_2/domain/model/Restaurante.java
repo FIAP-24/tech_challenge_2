@@ -1,40 +1,73 @@
 package br.com.fiap.tech_challenge_2.domain.model;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Entity
-@Table(name = "restaurante")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Restaurante {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String nome;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "endereco_id", referencedColumnName = "id")
     private Endereco endereco;
-
-    @Column(nullable = false)
     private String tipoCozinha;
-
-    @Column(nullable = false)
-    private String horarioFuncionamento; // Ex: "Seg-Sex: 09:00-22:00, Sab: 10:00-23:00"
-
-    @ManyToOne
-    @JoinColumn(name = "dono_id", nullable = false)
+    private String horarioFuncionamento;
     private Usuario dono;
-
-    @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<ItemCardapio> cardapio;
+
+    // Domain business logic methods
+    public boolean isValidForRegistration() {
+        return nome != null && !nome.trim().isEmpty() &&
+               tipoCozinha != null && !tipoCozinha.trim().isEmpty() &&
+               horarioFuncionamento != null && !horarioFuncionamento.trim().isEmpty() &&
+               dono != null;
+    }
+
+    public void addMenuItem(ItemCardapio item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be null");
+        }
+        if (cardapio == null) {
+            cardapio = new java.util.ArrayList<>();
+        }
+        item.setRestaurante(this);
+        cardapio.add(item);
+    }
+
+    public void removeMenuItem(Long itemId) {
+        if (cardapio != null) {
+            cardapio.removeIf(item -> item.getId().equals(itemId));
+        }
+    }
+
+    public List<ItemCardapio> getAvailableMenuItems() {
+        if (cardapio == null) {
+            return new java.util.ArrayList<>();
+        }
+        return cardapio.stream()
+                .filter(item -> !item.isDisponivelApenasNoLocal())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public boolean hasMenuItems() {
+        return cardapio != null && !cardapio.isEmpty();
+    }
+
+    public void updateRestaurantInfo(String nome, String tipoCozinha, String horarioFuncionamento) {
+        if (nome != null && !nome.trim().isEmpty()) {
+            this.nome = nome.trim();
+        }
+        if (tipoCozinha != null && !tipoCozinha.trim().isEmpty()) {
+            this.tipoCozinha = tipoCozinha.trim();
+        }
+        if (horarioFuncionamento != null && !horarioFuncionamento.trim().isEmpty()) {
+            this.horarioFuncionamento = horarioFuncionamento.trim();
+        }
+    }
 }

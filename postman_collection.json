@@ -1,0 +1,373 @@
+{
+  "info": {
+    "_postman_id": "tech-challenge-2-collection",
+    "name": "Tech Challenge 2 API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleção completa de testes para a API do Tech Challenge 2. Inclui todas as operações CRUD para usuários, tipos de usuário, restaurantes e itens do cardápio."
+  },
+  "item": [
+    {
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "Criar Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"João Silva\",\n  \"email\": \"joao@email.com\",\n  \"login\": \"joao123\",\n  \"senha\": \"senha123\",\n  \"tipoUsuarioId\": 1,\n  \"endereco\": {\n    \"logradouro\": \"Rua das Flores\",\n    \"numero\": \"123\",\n    \"complemento\": \"Apto 45\",\n    \"bairro\": \"Centro\",\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\",\n    \"cep\": \"01234567\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuarios",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "usuarios"]
+            }
+          }
+        },
+        {
+          "name": "Listar Todos os Usuários",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuarios",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "usuarios"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Usuário por ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuarios/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "usuarios", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Usuário",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"João Silva Atualizado\",\n  \"email\": \"joao.novo@email.com\",\n  \"senha\": \"novaSenha123\",\n  \"endereco\": {\n    \"logradouro\": \"Nova Rua\",\n    \"numero\": \"456\",\n    \"complemento\": \"Casa\",\n    \"bairro\": \"Vila Nova\",\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\",\n    \"cep\": \"04567890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuarios/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "usuarios", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Usuário",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuarios/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "usuarios", "1"]
+            }
+          }
+        },
+        {
+          "name": "Autenticar Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"joao123\",\n  \"senha\": \"senha123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuarios/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "usuarios", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tipos de Usuário",
+      "item": [
+        {
+          "name": "Criar Tipo de Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Administrador\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/tipos-usuario",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "tipos-usuario"]
+            }
+          }
+        },
+        {
+          "name": "Listar Todos os Tipos de Usuário",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/tipos-usuario",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "tipos-usuario"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Tipo de Usuário por ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/tipos-usuario/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "tipos-usuario", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Tipo de Usuário",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Gerente\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/tipos-usuario/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "tipos-usuario", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Tipo de Usuário",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/tipos-usuario/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "tipos-usuario", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurantes",
+      "item": [
+        {
+          "name": "Criar Restaurante",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Restaurante Italiano\",\n  \"endereco\": {\n    \"logradouro\": \"Rua da Gastronomia\",\n    \"numero\": \"100\",\n    \"complemento\": \"Loja 1\",\n    \"bairro\": \"Centro Gastronômico\",\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\",\n    \"cep\": \"01234567\"\n  },\n  \"tipoCozinha\": \"Italiana\",\n  \"horarioFuncionamento\": \"12:00-22:00\",\n  \"donoId\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/restaurantes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "restaurantes"]
+            }
+          }
+        },
+        {
+          "name": "Listar Todos os Restaurantes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/restaurantes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "restaurantes"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Restaurante por ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/restaurantes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "restaurantes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Restaurante",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Restaurante Italiano Premium\",\n  \"endereco\": {\n    \"logradouro\": \"Avenida Gourmet\",\n    \"numero\": \"200\",\n    \"complemento\": \"Loja 5\",\n    \"bairro\": \"Distrito Gastronômico\",\n    \"cidade\": \"São Paulo\",\n    \"estado\": \"SP\",\n    \"cep\": \"04567890\"\n  },\n  \"tipoCozinha\": \"Italiana Premium\",\n  \"horarioFuncionamento\": \"11:00-23:00\",\n  \"donoId\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/restaurantes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "restaurantes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Restaurante",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/restaurantes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "restaurantes", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Itens do Cardápio",
+      "item": [
+        {
+          "name": "Criar Item do Cardápio",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Pizza Margherita\",\n  \"descricao\": \"Pizza tradicional italiana com molho de tomate, mussarela e manjericão\",\n  \"preco\": 25.90,\n  \"disponivelApenasNoLocal\": false,\n  \"fotoPath\": \"/fotos/pizza-margherita.jpg\",\n  \"restauranteId\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/itens-cardapio",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "itens-cardapio"]
+            }
+          }
+        },
+        {
+          "name": "Listar Todos os Itens do Cardápio",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/itens-cardapio",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "itens-cardapio"]
+            }
+          }
+        },
+        {
+          "name": "Buscar Item do Cardápio por ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/itens-cardapio/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "itens-cardapio", "1"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Item do Cardápio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Pizza Margherita Premium\",\n  \"descricao\": \"Pizza italiana premium com ingredientes selecionados\",\n  \"preco\": 32.50,\n  \"disponivelApenasNoLocal\": true,\n  \"fotoPath\": \"/fotos/pizza-margherita-premium.jpg\",\n  \"restauranteId\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/itens-cardapio/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "itens-cardapio", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Item do Cardápio",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:8080/api/v1/itens-cardapio/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "v1", "itens-cardapio", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+} 

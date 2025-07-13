@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-07-08T20:32:45-0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
+    date = "2025-07-13T23:12:48+0100",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.4 (Amazon.com Inc.)"
 )
 @Component
 public class UsuarioMapperImpl implements UsuarioMapper {
@@ -34,7 +34,6 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         String login = null;
         EnderecoDTO endereco = null;
         LocalDate dataUpdate = null;
-        Perfil perfil = null;
 
         id = usuario.getId();
         nome = usuario.getNome();
@@ -42,9 +41,8 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         login = usuario.getLogin();
         endereco = enderecoToEnderecoDTO( usuario.getEndereco() );
         dataUpdate = usuario.getDataUpdate();
-        if ( usuario.getPerfil() != null ) {
-            perfil = Enum.valueOf( Perfil.class, usuario.getPerfil() );
-        }
+
+        Perfil perfil = null;
 
         UsuarioResponse usuarioResponse = new UsuarioResponse( id, nome, perfil, email, login, endereco, dataUpdate );
 
@@ -89,9 +87,6 @@ public class UsuarioMapperImpl implements UsuarioMapper {
 
         usuario.setNome( request.nome() );
         usuario.setEmail( request.email() );
-        if ( request.perfil() != null ) {
-            usuario.setPerfil( request.perfil().name() );
-        }
         usuario.setLogin( request.login() );
         usuario.setEndereco( enderecoDTOToEndereco( request.endereco() ) );
 
@@ -111,9 +106,6 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         if ( request != null ) {
             usuario.setNome( request.nome() );
             usuario.setEmail( request.email() );
-            if ( request.perfil() != null ) {
-                usuario.setPerfil( request.perfil().name() );
-            }
             usuario.setLogin( request.login() );
             usuario.setEndereco( enderecoDTOToEndereco( request.endereco() ) );
         }
