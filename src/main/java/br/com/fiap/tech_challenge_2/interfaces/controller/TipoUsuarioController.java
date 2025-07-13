@@ -24,9 +24,9 @@ public class TipoUsuarioController {
 
     @Operation(summary = "Cria um novo tipo de usuário")
     @PostMapping
-    public ResponseEntity<ApiResponse<TipoUsuarioDTO>> create(@Valid @RequestBody TipoUsuarioDTO dto) {
+    public ResponseEntity<TipoUsuarioDTO> create(@Valid @RequestBody TipoUsuarioDTO dto) {
         TipoUsuarioDTO created = service.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(created, "Tipo de usuário criado com sucesso"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @Operation(summary = "Busca um tipo de usuário por ID")
@@ -38,22 +38,22 @@ public class TipoUsuarioController {
 
     @Operation(summary = "Lista todos os tipos de usuário")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TipoUsuarioDTO>>> findAll() {
+    public ResponseEntity<List<TipoUsuarioDTO>> findAll() {
         List<TipoUsuarioDTO> dtos = service.findAll();
-        return ResponseEntity.ok(ApiResponse.success(dtos));
+        return ResponseEntity.ok(dtos);
     }
 
     @Operation(summary = "Atualiza um tipo de usuário existente")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<TipoUsuarioDTO>> update(@PathVariable Long id, @Valid @RequestBody TipoUsuarioDTO dto) {
+    public ResponseEntity<TipoUsuarioDTO> update(@PathVariable Long id, @Valid @RequestBody TipoUsuarioDTO dto) {
         TipoUsuarioDTO updated = service.update(id, dto);
-        return ResponseEntity.ok(ApiResponse.success(updated, "Tipo de usuário atualizado com sucesso"));
+        return ResponseEntity.ok(updated);
     }
 
     @Operation(summary = "Remove um tipo de usuário")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "Tipo de usuário removido com sucesso"));
+        return ResponseEntity.ok().build();
     }
 }

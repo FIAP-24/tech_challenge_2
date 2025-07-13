@@ -2,6 +2,7 @@ package br.com.fiap.tech_challenge_2.application.service;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioLoginRequest;
+import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioPassRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
 
@@ -20,4 +21,6 @@ public interface UsuarioService {
   void delete(Long id);
 
   UsuarioResponse update(Long id, UsuarioEditRequest request);
+
+  void alterPassword(Long id, UsuarioPassRequest usuarioPassRequest);
 }

@@ -24,36 +24,36 @@ public class RestauranteController {
 
     @Operation(summary = "Cria um novo restaurante")
     @PostMapping
-    public ResponseEntity<ApiResponse<Restaurante>> create(@Valid @RequestBody RestauranteRequestDTO dto) {
+    public ResponseEntity<Restaurante> create(@Valid @RequestBody RestauranteRequestDTO dto) {
         Restaurante created = restauranteService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(created, "Restaurante criado com sucesso"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @Operation(summary = "Busca um restaurante por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Restaurante>> findById(@PathVariable Long id) {
+    public ResponseEntity<Restaurante> findById(@PathVariable Long id) {
         Restaurante restaurante = restauranteService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(restaurante));
+        return ResponseEntity.ok(restaurante);
     }
 
     @Operation(summary = "Lista todos os restaurantes")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Restaurante>>> findAll() {
+    public ResponseEntity<List<Restaurante>> findAll() {
         List<Restaurante> restaurantes = restauranteService.findAll();
-        return ResponseEntity.ok(ApiResponse.success(restaurantes));
+        return ResponseEntity.ok(restaurantes);
     }
 
     @Operation(summary = "Atualiza um restaurante existente")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Restaurante>> update(@PathVariable Long id, @Valid @RequestBody RestauranteRequestDTO dto) {
+    public ResponseEntity<Restaurante> update(@PathVariable Long id, @Valid @RequestBody RestauranteRequestDTO dto) {
         Restaurante updated = restauranteService.update(id, dto);
-        return ResponseEntity.ok(ApiResponse.success(updated, "Restaurante atualizado com sucesso"));
+        return ResponseEntity.ok(updated);
     }
 
     @Operation(summary = "Remove um restaurante")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         restauranteService.delete(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "Restaurante removido com sucesso"));
+        return ResponseEntity.ok().build();
     }
 }

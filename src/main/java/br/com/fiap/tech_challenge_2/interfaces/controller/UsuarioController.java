@@ -2,6 +2,7 @@ package br.com.fiap.tech_challenge_2.interfaces.controller;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioLoginRequest;
+import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioPassRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
@@ -27,51 +28,54 @@ public class UsuarioController {
 
     @Operation(summary = "Lista todos os usuários.")
     @GetMapping
-    public ResponseEntity<ApiResponse<Set<UsuarioResponse>>> findAll() {
+    public ResponseEntity<Set<UsuarioResponse>> findAll() {
         Set<UsuarioResponse> usuarios = usuarioService.findAll();
-        return ResponseEntity.ok(ApiResponse.success(usuarios));
+        return ResponseEntity.ok(usuarios);
     }
 
     @Operation(summary = "Busca usuário por ID.")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UsuarioResponse>> findById(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponse> findById(@PathVariable Long id) {
         UsuarioResponse usuario = usuarioService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(usuario));
+        return ResponseEntity.ok(usuario);
     }
 
     @Operation(summary = "Cria um novo usuário.")
     @PostMapping
-    public ResponseEntity<ApiResponse<UsuarioResponse>> create(@Valid @RequestBody UsuarioRequest usuarioRequest) {
+    public ResponseEntity<UsuarioResponse> create(@Valid @RequestBody UsuarioRequest usuarioRequest) {
         UsuarioResponse created = usuarioService.save(usuarioRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(created, "Usuário cadastrado com sucesso"));
+                .body(created);
     }
 
     @Operation(summary = "Atualiza usuário existente por ID.")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<UsuarioResponse>> update(
+    public ResponseEntity<UsuarioResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioEditRequest usuarioEditRequest) {
         UsuarioResponse updated = usuarioService.update(id, usuarioEditRequest);
-        return ResponseEntity.ok(ApiResponse.success(updated, "Usuário atualizado com sucesso"));
+        return ResponseEntity.ok(updated);
     }
 
     @Operation(summary = "Autentica usuário.")
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Boolean>> login(@Valid @RequestBody UsuarioLoginRequest loginRequest) {
+    public ResponseEntity<Boolean> login(@Valid @RequestBody UsuarioLoginRequest loginRequest) {
         boolean authenticated = usuarioService.authenticate(loginRequest);
-        return ResponseEntity.ok(
-                authenticated ?
-                        ApiResponse.success(true, "Autenticação bem-sucedida") :
-                        ApiResponse.error("Falha na autenticação")
-        );
+        return ResponseEntity.ok(authenticated);
     }
 
     @Operation(summary = "Remove usuário por ID.")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         usuarioService.delete(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "Usuário removido com sucesso"));
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Troca senha do usuário.")
+    @PutMapping("/password/{id}")
+    public ResponseEntity<String> updatePass(@PathVariable Long id,@Valid @RequestBody UsuarioPassRequest usuarioPassRequest) {
+        usuarioService.alterPassword(id, usuarioPassRequest);
+        return ResponseEntity.ok("Senha alterada com sucesso.");
     }
 }

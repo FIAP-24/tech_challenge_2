@@ -21,6 +21,7 @@ public interface UsuarioMapper {
     @Mapping(target = "login", source = "login")
     @Mapping(target = "endereco", source = "endereco")
     @Mapping(target = "dataUpdate", source = "dataUpdate")
+    @Mapping(target = "perfil", source = "tipoUsuario.nome")
     UsuarioResponse toResponse(Usuario usuario);
 
     Set<UsuarioResponse> toResponseSet(Set<Usuario> usuarios);
@@ -31,7 +32,6 @@ public interface UsuarioMapper {
     @Mapping(target = "dataUpdate", expression = "java(java.time.LocalDate.now())")
     @Mapping(target = "senha", ignore = true)
     Usuario toEntity(UsuarioRequest request);
-
 
     @Mapping(target = "dataUpdate", expression = "java(java.time.LocalDate.now())")
     @Mapping(target = "senha", ignore = true)

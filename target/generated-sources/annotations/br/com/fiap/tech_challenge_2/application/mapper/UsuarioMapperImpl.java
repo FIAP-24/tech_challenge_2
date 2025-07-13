@@ -3,8 +3,8 @@ package br.com.fiap.tech_challenge_2.application.mapper;
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
-import br.com.fiap.tech_challenge_2.domain.enums.Perfil;
 import br.com.fiap.tech_challenge_2.domain.model.Endereco;
+import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-07-08T20:32:45-0300",
+    date = "2025-07-13T19:57:12-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
 )
 @Component
@@ -34,7 +34,7 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         String login = null;
         EnderecoDTO endereco = null;
         LocalDate dataUpdate = null;
-        Perfil perfil = null;
+        String perfil = null;
 
         id = usuario.getId();
         nome = usuario.getNome();
@@ -42,9 +42,7 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         login = usuario.getLogin();
         endereco = enderecoToEnderecoDTO( usuario.getEndereco() );
         dataUpdate = usuario.getDataUpdate();
-        if ( usuario.getPerfil() != null ) {
-            perfil = Enum.valueOf( Perfil.class, usuario.getPerfil() );
-        }
+        perfil = usuarioTipoUsuarioNome( usuario );
 
         UsuarioResponse usuarioResponse = new UsuarioResponse( id, nome, perfil, email, login, endereco, dataUpdate );
 
@@ -89,9 +87,6 @@ public class UsuarioMapperImpl implements UsuarioMapper {
 
         usuario.setNome( request.nome() );
         usuario.setEmail( request.email() );
-        if ( request.perfil() != null ) {
-            usuario.setPerfil( request.perfil().name() );
-        }
         usuario.setLogin( request.login() );
         usuario.setEndereco( enderecoDTOToEndereco( request.endereco() ) );
 
@@ -111,9 +106,6 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         if ( request != null ) {
             usuario.setNome( request.nome() );
             usuario.setEmail( request.email() );
-            if ( request.perfil() != null ) {
-                usuario.setPerfil( request.perfil().name() );
-            }
             usuario.setLogin( request.login() );
             usuario.setEndereco( enderecoDTOToEndereco( request.endereco() ) );
         }
@@ -147,6 +139,21 @@ public class UsuarioMapperImpl implements UsuarioMapper {
         EnderecoDTO enderecoDTO = new EnderecoDTO( logradouro, numero, complemento, bairro, cidade, estado, cep );
 
         return enderecoDTO;
+    }
+
+    private String usuarioTipoUsuarioNome(Usuario usuario) {
+        if ( usuario == null ) {
+            return null;
+        }
+        TipoUsuario tipoUsuario = usuario.getTipoUsuario();
+        if ( tipoUsuario == null ) {
+            return null;
+        }
+        String nome = tipoUsuario.getNome();
+        if ( nome == null ) {
+            return null;
+        }
+        return nome;
     }
 
     protected Endereco enderecoDTOToEndereco(EnderecoDTO enderecoDTO) {
