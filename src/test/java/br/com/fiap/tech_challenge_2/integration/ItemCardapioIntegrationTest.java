@@ -26,15 +26,15 @@ class ItemCardapioIntegrationTest {
         // Primeiro, criar um usuário
         String usuarioJson = """
             {
-                "nome": "João Cardapio",
-                "email": "joao_cardapio@email.com",
-                "perfil": "PROPRIETARIO",
-                "login": "joaocardapio",
+                "nome": "Proprietário Teste",
+                "email": "proprietario@email.com",
+                "tipoUsuarioId": 1,
+                "login": "proprietario",
                 "senha": "123456",
                 "endereco": {
-                    "logradouro": "Rua Teste",
-                    "numero": "123",
-                    "complemento": "Apto 1",
+                    "logradouro": "Rua do Restaurante",
+                    "numero": "100",
+                    "complemento": "Loja 1",
                     "bairro": "Centro",
                     "cidade": "São Paulo",
                     "estado": "SP",

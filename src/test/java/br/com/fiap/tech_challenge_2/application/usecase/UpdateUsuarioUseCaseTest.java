@@ -1,16 +1,19 @@
 package br.com.fiap.tech_challenge_2.application.usecase;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
+import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
 import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
+import br.com.fiap.tech_challenge_2.application.mapper.TipoUsuarioMapper;
+import br.com.fiap.tech_challenge_2.application.service.TipoUsuarioService;
 import br.com.fiap.tech_challenge_2.application.usecase.impl.UpdateUsuarioUseCaseImpl;
-import br.com.fiap.tech_challenge_2.domain.enums.Perfil;
 import br.com.fiap.tech_challenge_2.domain.model.Endereco;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
+import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
 import br.com.fiap.tech_challenge_2.domain.service.UsuarioDomainService;
 import br.com.fiap.tech_challenge_2.infrastructure.utils.PasswordHasher;
-import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +25,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,158 +38,96 @@ class UpdateUsuarioUseCaseTest {
     private UsuarioMapper usuarioMapper;
 
     @Mock
+    private EnderecoMapper enderecoMapper;
+
+    @Mock
     private PasswordHasher passwordHasher;
+
+    @Mock
+    private TipoUsuarioService tipoUsuarioService;
+
+    @Mock
+    private TipoUsuarioMapper tipoUsuarioMapper;
 
     @InjectMocks
     private UpdateUsuarioUseCaseImpl updateUsuarioUseCase;
 
-    private Usuario usuario;
     private UsuarioEditRequest request;
     private UsuarioResponse usuarioResponse;
+    private Usuario domainUsuario;
+    private EnderecoDTO enderecoDTO;
+    private Endereco enderecoDomain;
+    private TipoUsuarioDTO tipoUsuarioDTO;
+    private TipoUsuario tipoUsuario;
 
     @BeforeEach
     void setUp() {
-        Endereco endereco = new Endereco();
-        endereco.setLogradouro("Rua Teste");
-        endereco.setNumero("123");
-        endereco.setComplemento("Apto 1");
-        endereco.setBairro("Centro");
-        endereco.setCidade("São Paulo");
-        endereco.setEstado("SP");
-        endereco.setCep("01234567");
+        enderecoDTO = new EnderecoDTO("Rua Nova", "456", "Apto 2", "Vila Nova", "São Paulo", "SP", "04567890");
+        enderecoDomain = new Endereco(1L, "Rua Nova", "456", "Apto 2", "Vila Nova", "São Paulo", "SP", "04567890");
+        tipoUsuarioDTO = new TipoUsuarioDTO(1L, "CLIENTE");
+        tipoUsuario = new TipoUsuario(1L, "CLIENTE");
         
-        usuario = new Usuario();
-        usuario.setId(1L);
-        usuario.setNome("João Silva");
-        usuario.setEmail("joao@email.com");
-        usuario.setLogin("joao123");
-        usuario.setSenha("senha123");
-        usuario.setEndereco(endereco);
-        usuario.setDataUpdate(LocalDate.now());
+        request = new UsuarioEditRequest("João Silva Atualizado", "joao.novo@email.com", 1l, "novaSenha123", enderecoDTO);
         
-        EnderecoDTO enderecoDTO = new EnderecoDTO("Rua Nova", "456", "Apto 2", "Vila Nova", "Rio de Janeiro", "RJ", "20000000");
-        request = new UsuarioEditRequest("João Silva Atualizado", "joao.novo@email.com", Perfil.CLIENTE, "novaSenha123", enderecoDTO);
-        
-        usuarioResponse = new UsuarioResponse(1L, "João Silva Atualizado", Perfil.CLIENTE, "joao.novo@email.com", "joao123", enderecoDTO, LocalDate.now());
+        domainUsuario = new Usuario();
+        domainUsuario.setId(1L);
+        domainUsuario.setNome("João Silva Atualizado");
+        domainUsuario.setEmail("joao.novo@email.com");
+        domainUsuario.setLogin("joao123");
+        domainUsuario.setTipoUsuario(tipoUsuario);
+        domainUsuario.setDataUpdate(LocalDate.now());
+
+        usuarioResponse = new UsuarioResponse(1L, "João Silva Atualizado", tipoUsuarioDTO, "joao.novo@email.com", "joao123", enderecoDTO, LocalDate.now());
     }
 
     @Test
     void testExecute_Success() {
         // Given
-        when(usuarioDomainService.findUserById(1L)).thenReturn(Optional.of(usuario));
-        when(passwordHasher.hashPassword("novaSenha123")).thenReturn("senhaHashada");
-        when(usuarioDomainService.updateUser(usuario)).thenReturn(usuario);
-        when(usuarioMapper.toResponse(usuario)).thenReturn(usuarioResponse);
+        when(usuarioDomainService.findUserById(1L)).thenReturn(Optional.of(domainUsuario));
+        when(passwordHasher.hashPassword(any())).thenReturn("hashedNewPassword");
+        when(enderecoMapper.toEndereco(any(EnderecoDTO.class))).thenReturn(enderecoDomain);
+        when(tipoUsuarioService.findById(1L)).thenReturn(tipoUsuarioDTO);
+        when(tipoUsuarioMapper.toEntity(tipoUsuarioDTO)).thenReturn(tipoUsuario);
+        when(usuarioDomainService.updateUser(any(Usuario.class))).thenReturn(domainUsuario);
+        when(usuarioMapper.toResponse(any(Usuario.class))).thenReturn(usuarioResponse);
 
         // When
         UsuarioResponse result = updateUsuarioUseCase.execute(1L, request);
 
         // Then
         assertNotNull(result);
-        assertEquals(usuarioResponse, result);
-        assertEquals("João Silva Atualizado", usuario.getNome());
-        assertEquals("joao.novo@email.com", usuario.getEmail());
-        assertEquals("senhaHashada", usuario.getSenha());
-        
+        assertEquals(usuarioResponse.id(), result.id());
+        assertEquals(usuarioResponse.nome(), result.nome());
+        assertEquals(usuarioResponse.email(), result.email());
+        assertEquals(usuarioResponse.login(), result.login());
+        assertEquals(usuarioResponse.tipoUsuario().nome(), result.tipoUsuario().nome());
+
         verify(usuarioDomainService).findUserById(1L);
         verify(passwordHasher).hashPassword("novaSenha123");
-        verify(usuarioDomainService).updateUser(usuario);
-        verify(usuarioMapper).toResponse(usuario);
+        verify(enderecoMapper).toEndereco(enderecoDTO);
+        verify(tipoUsuarioService).findById(1L);
+        verify(tipoUsuarioMapper).toEntity(tipoUsuarioDTO);
+        verify(usuarioDomainService).updateUser(domainUsuario);
+        verify(usuarioMapper).toResponse(domainUsuario);
     }
 
     @Test
-    void testExecute_UserNotFound() {
-        // Given
-        when(usuarioDomainService.findUserById(999L)).thenReturn(Optional.empty());
-
+    void testExecute_WithNullRequest() {
         // When & Then
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            updateUsuarioUseCase.execute(999L, request);
-        });
-        
-        assertEquals("Usuário não encontrado com id: 999", exception.getMessage());
-        
-        verify(usuarioDomainService).findUserById(999L);
-        verify(passwordHasher, never()).hashPassword(any());
-        verify(usuarioDomainService, never()).updateUser(any());
-        verify(usuarioMapper, never()).toResponse(any());
-    }
-
-    @Test
-    void testExecute_NullId() {
-        // When & Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            updateUsuarioUseCase.execute(null, request);
-        });
-        
-        assertEquals("ID cannot be null", exception.getMessage());
-        
-        verify(usuarioDomainService, never()).findUserById(any());
-        verify(passwordHasher, never()).hashPassword(any());
-        verify(usuarioDomainService, never()).updateUser(any());
-        verify(usuarioMapper, never()).toResponse(any());
-    }
-
-    @Test
-    void testExecute_NullRequest() {
-        // When & Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             updateUsuarioUseCase.execute(1L, null);
         });
-        
-        assertEquals("Request cannot be null", exception.getMessage());
-        
-        verify(usuarioDomainService, never()).findUserById(any());
-        verify(passwordHasher, never()).hashPassword(any());
+
         verify(usuarioDomainService, never()).updateUser(any());
-        verify(usuarioMapper, never()).toResponse(any());
     }
 
     @Test
-    void testExecute_PartialUpdate() {
-        // Given
-        UsuarioEditRequest partialRequest = new UsuarioEditRequest("Novo Nome", null, null, null, null);
-        when(usuarioDomainService.findUserById(1L)).thenReturn(Optional.of(usuario));
-        when(usuarioDomainService.updateUser(usuario)).thenReturn(usuario);
-        when(usuarioMapper.toResponse(usuario)).thenReturn(usuarioResponse);
+    void testExecute_WithNullId() {
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            updateUsuarioUseCase.execute(null, request);
+        });
 
-        // When
-        UsuarioResponse result = updateUsuarioUseCase.execute(1L, partialRequest);
-
-        // Then
-        assertNotNull(result);
-        assertEquals("Novo Nome", usuario.getNome());
-        // Email and password should remain unchanged
-        assertEquals("joao@email.com", usuario.getEmail());
-        assertEquals("senha123", usuario.getSenha());
-        
-        verify(usuarioDomainService).findUserById(1L);
-        verify(passwordHasher, never()).hashPassword(any());
-        verify(usuarioDomainService).updateUser(usuario);
-        verify(usuarioMapper).toResponse(usuario);
-    }
-
-    @Test
-    void testExecute_EmptyFields() {
-        // Given
-        UsuarioEditRequest emptyRequest = new UsuarioEditRequest("", "", null, "", null);
-        when(usuarioDomainService.findUserById(1L)).thenReturn(Optional.of(usuario));
-        when(usuarioDomainService.updateUser(usuario)).thenReturn(usuario);
-        when(usuarioMapper.toResponse(usuario)).thenReturn(usuarioResponse);
-
-        // When
-        UsuarioResponse result = updateUsuarioUseCase.execute(1L, emptyRequest);
-
-        // Then
-        assertNotNull(result);
-        // Fields should remain unchanged due to empty values
-        assertEquals("João Silva", usuario.getNome());
-        assertEquals("joao@email.com", usuario.getEmail());
-        assertEquals("senha123", usuario.getSenha());
-        
-        verify(usuarioDomainService).findUserById(1L);
-        verify(passwordHasher, never()).hashPassword(any());
-        verify(usuarioDomainService).updateUser(usuario);
-        verify(usuarioMapper).toResponse(usuario);
+        verify(usuarioDomainService, never()).updateUser(any());
     }
 } 

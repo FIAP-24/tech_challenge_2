@@ -1,7 +1,7 @@
 package br.com.fiap.tech_challenge_2.application.dto.response;
 
-import br.com.fiap.tech_challenge_2.domain.enums.Perfil;
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public record UsuarioResponse(
         Long id,
         String nome,
-        Perfil perfil,
+        TipoUsuarioDTO tipoUsuario,
         String email,
         String login,
         EnderecoDTO endereco,

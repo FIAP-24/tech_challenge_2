@@ -1,12 +1,12 @@
 package br.com.fiap.tech_challenge_2.application.mapper;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
-import br.com.fiap.tech_challenge_2.domain.enums.Perfil;
+import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import br.com.fiap.tech_challenge_2.domain.model.Endereco;
 import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
-import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,58 +25,55 @@ class UsuarioMapperTest {
     @InjectMocks
     private UsuarioMapperImpl usuarioMapper;
 
+    private Usuario domainUsuario;
     private UsuarioRequest usuarioRequest;
-    private Usuario usuario;
     private UsuarioResponse usuarioResponse;
+    private Endereco domainEndereco;
     private EnderecoDTO enderecoDTO;
-    private Endereco endereco;
-    private TipoUsuario tipoUsuario;
+    private TipoUsuario domainTipoUsuario;
+    private TipoUsuarioDTO tipoUsuarioDTO;
 
     @BeforeEach
     void setUp() {
         enderecoDTO = new EnderecoDTO("Rua Teste", "123", "Apto 1", "Centro", "São Paulo", "SP", "01234567");
-        endereco = new Endereco();
-        endereco.setId(1L);
-        endereco.setLogradouro("Rua Teste");
-        endereco.setNumero("123");
-        endereco.setComplemento("Apto 1");
-        endereco.setBairro("Centro");
-        endereco.setCidade("São Paulo");
-        endereco.setEstado("SP");
-        endereco.setCep("01234567");
+        tipoUsuarioDTO = new TipoUsuarioDTO(1L, "CLIENTE");
+        
+        domainEndereco = new Endereco(1L, "Rua Teste", "123", "Apto 1", "Centro", "São Paulo", "SP", "01234567");
+        domainTipoUsuario = new TipoUsuario(1L, "CLIENTE");
+        
+        domainUsuario = new Usuario(1L, "João Silva", "joao@email.com", "joao123", "senha123", LocalDate.now(), domainEndereco, domainTipoUsuario);
+        
+        usuarioRequest = new UsuarioRequest("João Silva", "joao@email.com", 1l, "joao123", "senha123", enderecoDTO);
+        
+        usuarioResponse = new UsuarioResponse(1L, "João Silva", tipoUsuarioDTO, "joao@email.com", "joao123", enderecoDTO, LocalDate.now());
+    }
 
-        tipoUsuario = new TipoUsuario();
-        tipoUsuario.setId(1L);
-        tipoUsuario.setNome("CLIENTE");
+    @Test
+    void testToResponse_Success() {
+        // When
+        UsuarioResponse result = usuarioMapper.toResponse(domainUsuario);
 
-        usuarioRequest = new UsuarioRequest(
-            "João Silva",
-            "joao@email.com",
-            Perfil.CLIENTE,
-            "joao123",
-            "123456",
-            enderecoDTO
-        );
+        // Then
+        assertNotNull(result);
+        assertEquals(domainUsuario.getId(), result.id());
+        assertEquals(domainUsuario.getNome(), result.nome());
+        assertEquals(domainUsuario.getEmail(), result.email());
+        assertEquals(domainUsuario.getLogin(), result.login());
+        assertEquals(domainUsuario.getDataUpdate(), result.dataUpdate());
+        assertEquals(domainUsuario.getTipoUsuario().getNome(), result.tipoUsuario().nome());
+        
+        // Endereco é mapeado automaticamente
+        assertNotNull(result.endereco());
+        assertEquals(domainEndereco.getLogradouro(), result.endereco().logradouro());
+    }
 
-        usuario = new Usuario();
-        usuario.setId(1L);
-        usuario.setNome("João Silva");
-        usuario.setEmail("joao@email.com");
-        usuario.setLogin("joao123");
-        usuario.setSenha("hashedPassword");
-        usuario.setDataUpdate(LocalDate.now());
-        usuario.setEndereco(endereco);
-        usuario.setTipoUsuario(tipoUsuario);
+    @Test
+    void testToResponse_WithNullUsuario() {
+        // When
+        UsuarioResponse result = usuarioMapper.toResponse(null);
 
-        usuarioResponse = new UsuarioResponse(
-            1L,
-            "João Silva",
-            Perfil.CLIENTE,
-            "joao@email.com",
-            "joao123",
-            enderecoDTO,
-            LocalDate.now()
-        );
+        // Then
+        assertNull(result);
     }
 
     @Test
@@ -87,104 +86,88 @@ class UsuarioMapperTest {
         assertEquals(usuarioRequest.nome(), result.getNome());
         assertEquals(usuarioRequest.email(), result.getEmail());
         assertEquals(usuarioRequest.login(), result.getLogin());
-        // Senha é ignorada no mapper
+        // O campo tipoUsuario será null após o mapeamento
+        assertNull(result.getTipoUsuario());
+        assertNotNull(result.getDataUpdate());
+        // Senha não é mapeada automaticamente
         assertNull(result.getSenha());
+        // Endereco é mapeado automaticamente
         assertNotNull(result.getEndereco());
-        assertEquals(usuarioRequest.endereco().logradouro(), result.getEndereco().getLogradouro());
-        assertEquals(usuarioRequest.endereco().numero(), result.getEndereco().getNumero());
-        assertEquals(usuarioRequest.endereco().complemento(), result.getEndereco().getComplemento());
-        assertEquals(usuarioRequest.endereco().bairro(), result.getEndereco().getBairro());
-        assertEquals(usuarioRequest.endereco().cidade(), result.getEndereco().getCidade());
-        assertEquals(usuarioRequest.endereco().estado(), result.getEndereco().getEstado());
-        assertEquals(usuarioRequest.endereco().cep(), result.getEndereco().getCep());
+        assertEquals(enderecoDTO.logradouro(), result.getEndereco().getLogradouro());
     }
 
     @Test
-    void testToEntity_WithNullEndereco() {
-        // Given
-        UsuarioRequest requestWithoutEndereco = new UsuarioRequest(
-            "João Silva",
-            "joao@email.com",
-            Perfil.CLIENTE,
-            "joao123",
-            "123456",
-            null
-        );
-
+    void testToEntity_WithNullRequest() {
         // When
-        Usuario result = usuarioMapper.toEntity(requestWithoutEndereco);
+        Usuario result = usuarioMapper.toEntity(null);
+
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void testToEntity_WithId() {
+        // When
+        Usuario result = usuarioMapper.toEntity(usuarioRequest, 1L);
 
         // Then
         assertNotNull(result);
-        assertEquals(requestWithoutEndereco.nome(), result.getNome());
-        assertEquals(requestWithoutEndereco.email(), result.getEmail());
-        assertEquals(requestWithoutEndereco.login(), result.getLogin());
-        // Senha é ignorada no mapper
+        assertEquals(1L, result.getId());
+        assertEquals(usuarioRequest.nome(), result.getNome());
+        assertEquals(usuarioRequest.email(), result.getEmail());
+        assertEquals(usuarioRequest.login(), result.getLogin());
+        // O campo tipoUsuario será null após o mapeamento
+        assertNull(result.getTipoUsuario());
+        assertNotNull(result.getDataUpdate());
+        // Senha não é mapeada automaticamente
         assertNull(result.getSenha());
-        assertNull(result.getEndereco());
     }
 
     @Test
-    void testToResponse_Success() {
+    void testToEntity_WithIdAndHashedPassword() {
         // When
-        UsuarioResponse result = usuarioMapper.toResponse(usuario);
+        Usuario result = usuarioMapper.toEntity(usuarioRequest, 1L, "hashedPassword");
 
         // Then
         assertNotNull(result);
-        assertEquals(usuario.getId(), result.id());
-        assertEquals(usuario.getNome(), result.nome());
-        assertEquals(usuario.getEmail(), result.email());
-        assertEquals(usuario.getLogin(), result.login());
-        // Perfil não é mapeado automaticamente
-        assertNull(result.perfil());
-        assertNotNull(result.endereco());
-        assertEquals(usuario.getEndereco().getLogradouro(), result.endereco().logradouro());
-        assertEquals(usuario.getEndereco().getNumero(), result.endereco().numero());
-        assertEquals(usuario.getEndereco().getComplemento(), result.endereco().complemento());
-        assertEquals(usuario.getEndereco().getBairro(), result.endereco().bairro());
-        assertEquals(usuario.getEndereco().getCidade(), result.endereco().cidade());
-        assertEquals(usuario.getEndereco().getEstado(), result.endereco().estado());
-        assertEquals(usuario.getEndereco().getCep(), result.endereco().cep());
-        assertEquals(usuario.getDataUpdate(), result.dataUpdate());
+        assertEquals(1L, result.getId());
+        assertEquals("hashedPassword", result.getSenha());
+        assertEquals(usuarioRequest.nome(), result.getNome());
+        assertEquals(usuarioRequest.email(), result.getEmail());
+        assertEquals(usuarioRequest.login(), result.getLogin());
+        // O campo tipoUsuario será null após o mapeamento
+        assertNull(result.getTipoUsuario());
     }
 
     @Test
-    void testToResponse_WithNullEndereco() {
+    void testToResponseList_Success() {
         // Given
-        usuario.setEndereco(null);
+        List<Usuario> domainUsuarios = List.of(domainUsuario);
 
         // When
-        UsuarioResponse result = usuarioMapper.toResponse(usuario);
+        List<UsuarioResponse> result = usuarioMapper.toResponseList(domainUsuarios);
 
         // Then
         assertNotNull(result);
-        assertEquals(usuario.getId(), result.id());
-        assertEquals(usuario.getNome(), result.nome());
-        assertEquals(usuario.getEmail(), result.email());
-        assertEquals(usuario.getLogin(), result.login());
-        // Perfil não é mapeado automaticamente
-        assertNull(result.perfil());
-        assertNull(result.endereco());
-        assertEquals(usuario.getDataUpdate(), result.dataUpdate());
+        assertEquals(1, result.size());
+        assertEquals(domainUsuario.getId(), result.get(0).id());
+        assertEquals(domainUsuario.getNome(), result.get(0).nome());
+        assertEquals(domainUsuario.getTipoUsuario().getNome(), result.get(0).tipoUsuario().nome());
     }
 
     @Test
-    void testToResponse_WithNullDataUpdate() {
+    void testToResponseSet_Success() {
         // Given
-        usuario.setDataUpdate(null);
+        Set<Usuario> domainUsuarios = Set.of(domainUsuario);
 
         // When
-        UsuarioResponse result = usuarioMapper.toResponse(usuario);
+        Set<UsuarioResponse> result = usuarioMapper.toResponseSet(domainUsuarios);
 
         // Then
         assertNotNull(result);
-        assertEquals(usuario.getId(), result.id());
-        assertEquals(usuario.getNome(), result.nome());
-        assertEquals(usuario.getEmail(), result.email());
-        assertEquals(usuario.getLogin(), result.login());
-        // Perfil não é mapeado automaticamente
-        assertNull(result.perfil());
-        assertNotNull(result.endereco());
-        assertNull(result.dataUpdate());
+        assertEquals(1, result.size());
+        assertEquals(domainUsuario.getId(), result.iterator().next().id());
+        assertEquals(domainUsuario.getNome(), result.iterator().next().nome());
+        assertEquals(domainUsuario.getTipoUsuario().getNome(), result.iterator().next().tipoUsuario().nome());
     }
 } 

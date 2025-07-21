@@ -2,7 +2,9 @@ package br.com.fiap.tech_challenge_2.application.usecase.impl;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
+import br.com.fiap.tech_challenge_2.application.mapper.TipoUsuarioMapper;
 import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
+import br.com.fiap.tech_challenge_2.application.service.TipoUsuarioService;
 import br.com.fiap.tech_challenge_2.application.usecase.CreateUsuarioUseCase;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import br.com.fiap.tech_challenge_2.domain.service.UsuarioDomainService;
@@ -19,13 +21,15 @@ public class CreateUsuarioUseCaseImpl implements CreateUsuarioUseCase {
     private final UsuarioDomainService usuarioDomainService;
     private final UsuarioMapper usuarioMapper;
     private final PasswordHasher passwordHasher;
+    private final TipoUsuarioService tipoUsuarioService;
+    private final TipoUsuarioMapper tipoUsuarioMapper;
 
     @Override
     @Transactional
     public UsuarioResponse execute(UsuarioRequest request) {
         // Validate request
         validateRequest(request);
-        
+
         // Check if login is available
         if (!usuarioDomainService.isLoginAvailable(request.login())) {
             throw new DuplicateResourceException("Login já está em uso");
@@ -33,11 +37,16 @@ public class CreateUsuarioUseCaseImpl implements CreateUsuarioUseCase {
 
         // Convert to domain entity
         Usuario usuario = usuarioMapper.toEntity(request);
+        if (request.tipoUsuarioId() != null) {
+            var tipoUsuarioDTO = tipoUsuarioService.findById(request.tipoUsuarioId());
+            var tipoUsuarioDomain = tipoUsuarioMapper.toEntity(tipoUsuarioDTO);
+            usuario.setTipoUsuario(tipoUsuarioDomain);
+        }
         usuario.setSenha(passwordHasher.hashPassword(request.senha()));
 
         // Use domain service to create user
         Usuario saved = usuarioDomainService.createUser(usuario);
-        
+
         return usuarioMapper.toResponse(saved);
     }
 

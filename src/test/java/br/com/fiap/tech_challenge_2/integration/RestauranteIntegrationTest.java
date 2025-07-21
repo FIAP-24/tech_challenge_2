@@ -26,15 +26,15 @@ class RestauranteIntegrationTest {
         // Primeiro, criar um usuário
         String usuarioJson = """
             {
-                "nome": "João Restaurante",
-                "email": "joao_restaurante@email.com",
-                "perfil": "PROPRIETARIO",
-                "login": "joaorestaurante",
+                "nome": "Proprietário Teste",
+                "email": "proprietario.teste@email.com",
+                "tipoUsuarioId": 1,
+                "login": "proprietario_teste",
                 "senha": "123456",
                 "endereco": {
-                    "logradouro": "Rua Teste",
-                    "numero": "123",
-                    "complemento": "Apto 1",
+                    "logradouro": "Rua do Restaurante",
+                    "numero": "100",
+                    "complemento": "Loja 1",
                     "bairro": "Centro",
                     "cidade": "São Paulo",
                     "estado": "SP",
