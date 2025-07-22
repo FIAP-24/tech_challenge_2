@@ -229,7 +229,7 @@ class ItemCardapioTest {
         String result = itemCardapio.getFormattedPrice();
 
         // Then
-        assertEquals("R$ 25.90", result);
+        assertEquals("R$ 25,90", result);
     }
 
     @Test
@@ -253,7 +253,7 @@ class ItemCardapioTest {
         String result = itemCardapio.getFormattedPrice();
 
         // Then
-        assertEquals("R$ 0.00", result);
+        assertEquals("R$ 0,00", result);
     }
 
     @Test
@@ -265,6 +265,6 @@ class ItemCardapioTest {
         String result = itemCardapio.getFormattedPrice();
 
         // Then
-        assertEquals("R$ 25.99", result);
+        assertEquals("R$ 25,99", result);
     }
 } 

@@ -1,5 +1,6 @@
 package br.com.fiap.tech_challenge_2.infrastructure.persistence.repository;
 
+import br.com.fiap.tech_challenge_2.domain.exception.ForeignKeyViolationException;
 import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
 import br.com.fiap.tech_challenge_2.domain.repository.TipoUsuarioRepository;
 import br.com.fiap.tech_challenge_2.infrastructure.persistence.entity.TipoUsuarioEntity;
@@ -42,7 +43,16 @@ public class TipoUsuarioRepositoryImpl implements TipoUsuarioRepository {
 
     @Override
     public void deleteById(Long id) {
-        jpaRepository.deleteById(id);
+        try {
+            jpaRepository.deleteById(id);
+        } catch (Exception e) {
+            if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+                throw new ForeignKeyViolationException(
+                        "Não é possível excluir este tipo de usuário pois existem usuários vinculados a ele."
+                );
+            }
+            throw e;
+        }
     }
 
     @Override

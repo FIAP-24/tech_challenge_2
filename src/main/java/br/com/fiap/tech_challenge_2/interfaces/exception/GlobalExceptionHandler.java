@@ -1,8 +1,10 @@
 package br.com.fiap.tech_challenge_2.interfaces.exception;
 
 import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
+import br.com.fiap.tech_challenge_2.domain.exception.ForeignKeyViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -73,4 +75,24 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Erro interno do servidor: " + ex.getMessage()));
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<String>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String mensagem;
+
+        if (ex.getMessage().contains("foreign key constraint fails")) {
+            if (ex.getMessage().contains("tipo_usuario")) {
+                mensagem = "Não é possível excluir este tipo de usuário pois existem usuários vinculados a ele.";
+            } else {
+                mensagem = "Não é possível excluir este registro pois existem registros dependentes.";
+            }
+        } else {
+            mensagem = "Erro de integridade de dados: " + ex.getMostSpecificCause().getMessage();
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(mensagem));
+    }
+
 }
