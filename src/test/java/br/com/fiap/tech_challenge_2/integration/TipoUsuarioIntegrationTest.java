@@ -23,14 +23,14 @@ class TipoUsuarioIntegrationTest {
 
     @Test
     void deveCriarEListarTipoUsuario() throws Exception {
-        String tipoUsuarioJson = "{\"nome\":\"PROPRIETARIO\"}";
+        String tipoUsuarioJson = "{\"nome\":\"ADMINISTRADOR\"}";
 
         // Cria tipo de usuário
         mockMvc.perform(post("/api/v1/tipos-usuario")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(tipoUsuarioJson))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.nome").value("PROPRIETARIO"));
+                .andExpect(jsonPath("$.data.nome").value("ADMINISTRADOR"));
 
         // Lista tipos de usuário
         mockMvc.perform(get("/api/v1/tipos-usuario"))

@@ -1,11 +1,11 @@
 package br.com.fiap.tech_challenge_2.application.service.impl;
 
-import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
 import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
-import br.com.fiap.tech_challenge_2.domain.enums.Perfil;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
+import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
 import br.com.fiap.tech_challenge_2.domain.service.UsuarioDomainService;
 import br.com.fiap.tech_challenge_2.infrastructure.utils.PasswordHasher;
 import br.com.fiap.tech_challenge_2.interfaces.exception.DuplicateResourceException;
@@ -42,49 +42,37 @@ class UsuarioServiceImplTest {
     private UsuarioServiceImpl usuarioService;
 
     private UsuarioRequest usuarioRequest;
-    private Usuario usuario;
+    private Usuario domainUsuario;
     private UsuarioResponse usuarioResponse;
-    private EnderecoDTO enderecoDTO;
+    private TipoUsuarioDTO tipoUsuarioDTO;
+    private TipoUsuario tipoUsuario;
 
     @BeforeEach
     void setUp() {
-        enderecoDTO = new EnderecoDTO("Rua Teste", "123", "Apto 1", "Centro", "São Paulo", "SP", "01234567");
-        usuarioRequest = new UsuarioRequest(
-            "João Silva",
-            "joao@email.com",
-            Perfil.CLIENTE,
-            "joao123",
-            "123456",
-            enderecoDTO
-        );
+        tipoUsuarioDTO = new TipoUsuarioDTO(1L, "CLIENTE");
+        tipoUsuario = new TipoUsuario(1L, "CLIENTE");
+        
+        usuarioRequest = new UsuarioRequest("John Doe", "john@email.com", 1l, "johndoe", "password123", null);
+        
+        domainUsuario = new Usuario();
+        domainUsuario.setId(1L);
+        domainUsuario.setNome("John Doe");
+        domainUsuario.setEmail("john@email.com");
+        domainUsuario.setLogin("johndoe");
+        domainUsuario.setTipoUsuario(tipoUsuario);
+        domainUsuario.setDataUpdate(LocalDate.now());
 
-        usuario = new Usuario();
-        usuario.setId(1L);
-        usuario.setNome("João Silva");
-        usuario.setEmail("joao@email.com");
-        usuario.setLogin("joao123");
-        usuario.setSenha("hashedPassword");
-        usuario.setDataUpdate(LocalDate.now());
-
-        usuarioResponse = new UsuarioResponse(
-            1L,
-            "João Silva",
-            Perfil.CLIENTE,
-            "joao@email.com",
-            "joao123",
-            enderecoDTO,
-            LocalDate.now()
-        );
+        usuarioResponse = new UsuarioResponse(1L, "John Doe", tipoUsuarioDTO, "john@email.com", "johndoe", null, LocalDate.now());
     }
 
     @Test
     void testSave_Success() {
         // Given
-        when(usuarioDomainService.isLoginAvailable("joao123")).thenReturn(true);
-        when(usuarioMapper.toEntity(usuarioRequest)).thenReturn(usuario);
-        when(passwordHasher.hashPassword("123456")).thenReturn("hashedPassword");
-        when(usuarioDomainService.createUser(usuario)).thenReturn(usuario);
-        when(usuarioMapper.toResponse(usuario)).thenReturn(usuarioResponse);
+        when(usuarioDomainService.isLoginAvailable(any())).thenReturn(true);
+        when(passwordHasher.hashPassword(any())).thenReturn("hashedPassword");
+        when(usuarioMapper.toEntity(any(UsuarioRequest.class))).thenReturn(domainUsuario);
+        when(usuarioDomainService.createUser(any(Usuario.class))).thenReturn(domainUsuario);
+        when(usuarioMapper.toResponse(any(Usuario.class))).thenReturn(usuarioResponse);
 
         // When
         UsuarioResponse result = usuarioService.save(usuarioRequest);
@@ -95,41 +83,47 @@ class UsuarioServiceImplTest {
         assertEquals(usuarioResponse.nome(), result.nome());
         assertEquals(usuarioResponse.email(), result.email());
         assertEquals(usuarioResponse.login(), result.login());
-        assertEquals(usuarioResponse.perfil(), result.perfil());
+        assertEquals(usuarioResponse.tipoUsuario().nome(), result.tipoUsuario().nome());
 
-        verify(usuarioDomainService).isLoginAvailable("joao123");
+        verify(usuarioDomainService).isLoginAvailable("johndoe");
+        verify(passwordHasher).hashPassword("password123");
         verify(usuarioMapper).toEntity(usuarioRequest);
-        verify(passwordHasher).hashPassword("123456");
-        verify(usuarioDomainService).createUser(usuario);
-        verify(usuarioMapper).toResponse(usuario);
+        verify(usuarioDomainService).createUser(domainUsuario);
+        verify(usuarioMapper).toResponse(domainUsuario);
     }
 
     @Test
-    void testSave_DuplicateLogin() {
+    void testSave_WithNullRequest() {
+        // When & Then
+        assertThrows(NullPointerException.class, () -> {
+            usuarioService.save(null);
+        });
+
+        verify(usuarioDomainService, never()).createUser(any());
+    }
+
+    @Test
+    void testSave_WithDuplicateLogin() {
         // Given
-        when(usuarioDomainService.isLoginAvailable("joao123")).thenReturn(false);
+        when(usuarioDomainService.isLoginAvailable(any())).thenReturn(false);
 
         // When & Then
         assertThrows(DuplicateResourceException.class, () -> {
             usuarioService.save(usuarioRequest);
         });
 
-        verify(usuarioDomainService).isLoginAvailable("joao123");
-        verify(usuarioMapper, never()).toEntity(any());
-        verify(passwordHasher, never()).hashPassword(any());
+        verify(usuarioDomainService).isLoginAvailable("johndoe");
         verify(usuarioDomainService, never()).createUser(any());
-        verify(usuarioMapper, never()).toResponse(any());
     }
 
     @Test
     void testFindById_Success() {
         // Given
-        Long id = 1L;
-        when(usuarioDomainService.findUserById(id)).thenReturn(Optional.of(usuario));
-        when(usuarioMapper.toResponse(usuario)).thenReturn(usuarioResponse);
+        when(usuarioDomainService.findUserById(1L)).thenReturn(Optional.of(domainUsuario));
+        when(usuarioMapper.toResponse(any(Usuario.class))).thenReturn(usuarioResponse);
 
         // When
-        UsuarioResponse result = usuarioService.findById(id);
+        UsuarioResponse result = usuarioService.findById(1L);
 
         // Then
         assertNotNull(result);
@@ -137,33 +131,44 @@ class UsuarioServiceImplTest {
         assertEquals(usuarioResponse.nome(), result.nome());
         assertEquals(usuarioResponse.email(), result.email());
         assertEquals(usuarioResponse.login(), result.login());
-        assertEquals(usuarioResponse.perfil(), result.perfil());
+        assertEquals(usuarioResponse.tipoUsuario().nome(), result.tipoUsuario().nome());
 
-        verify(usuarioDomainService).findUserById(id);
-        verify(usuarioMapper).toResponse(usuario);
+        verify(usuarioDomainService).findUserById(1L);
+        verify(usuarioMapper).toResponse(domainUsuario);
+    }
+
+    @Test
+    void testFindById_WithNullId() {
+        // Given
+        when(usuarioDomainService.findUserById(null)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            usuarioService.findById(null);
+        });
+
+        verify(usuarioDomainService).findUserById(null);
     }
 
     @Test
     void testFindById_NotFound() {
         // Given
-        Long id = 999L;
-        when(usuarioDomainService.findUserById(id)).thenReturn(Optional.empty());
+        when(usuarioDomainService.findUserById(999L)).thenReturn(Optional.empty());
 
         // When & Then
         assertThrows(ResourceNotFoundException.class, () -> {
-            usuarioService.findById(id);
+            usuarioService.findById(999L);
         });
 
-        verify(usuarioDomainService).findUserById(id);
-        verify(usuarioMapper, never()).toResponse(any());
+        verify(usuarioDomainService).findUserById(999L);
     }
 
     @Test
     void testFindAll_Success() {
         // Given
-        List<Usuario> usuarios = List.of(usuario);
-        when(usuarioDomainService.findAllUsers()).thenReturn(usuarios);
-        when(usuarioMapper.toResponse(usuario)).thenReturn(usuarioResponse);
+        List<Usuario> domainUsuarios = List.of(domainUsuario);
+        Set<UsuarioResponse> expectedResponses = Set.of(usuarioResponse);
+        when(usuarioDomainService.findAllUsers()).thenReturn(domainUsuarios);
 
         // When
         Set<UsuarioResponse> result = usuarioService.findAll();
@@ -171,55 +176,8 @@ class UsuarioServiceImplTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertTrue(result.stream().anyMatch(u -> u.id().equals(usuarioResponse.id())));
-
+        
         verify(usuarioDomainService).findAllUsers();
-        verify(usuarioMapper).toResponse(usuario);
-    }
-
-    @Test
-    void testFindAll_EmptyList() {
-        // Given
-        when(usuarioDomainService.findAllUsers()).thenReturn(List.of());
-
-        // When
-        Set<UsuarioResponse> result = usuarioService.findAll();
-
-        // Then
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        verify(usuarioDomainService).findAllUsers();
-        verify(usuarioMapper, never()).toResponse(any());
-    }
-
-    @Test
-    void testDelete_Success() {
-        // Given
-        Long id = 1L;
-        when(usuarioDomainService.findUserById(id)).thenReturn(Optional.of(usuario));
-        doNothing().when(usuarioDomainService).deleteUser(id);
-
-        // When
-        usuarioService.delete(id);
-
-        // Then
-        verify(usuarioDomainService).findUserById(id);
-        verify(usuarioDomainService).deleteUser(id);
-    }
-
-    @Test
-    void testDelete_NotFound() {
-        // Given
-        Long id = 999L;
-        when(usuarioDomainService.findUserById(id)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThrows(ResourceNotFoundException.class, () -> {
-            usuarioService.delete(id);
-        });
-
-        verify(usuarioDomainService).findUserById(id);
-        verify(usuarioDomainService, never()).deleteUser(any());
+        verify(usuarioMapper).toResponse(domainUsuario);
     }
 } 

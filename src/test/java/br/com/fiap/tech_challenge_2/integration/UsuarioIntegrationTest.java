@@ -30,7 +30,7 @@ class UsuarioIntegrationTest {
             {
                 "nome": "João Teste",
                 "email": "joao_unico@email.com",
-                "perfil": "PROPRIETARIO",
+                "tipoUsuarioId": 1,
                 "login": "joaounico",
                 "senha": "123456",
                 "endereco": {

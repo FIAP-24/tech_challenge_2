@@ -472,3 +472,171 @@ docker run -p 8080:8080 tech-challenge-2
 ## 📝 Licença
 
 Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+# Tech Challenge 2
+
+## Correções no UpdateUsuarioUseCaseImpl
+
+### Problemas Identificados e Corrigidos
+
+#### 1. **Problema na Atualização do TipoUsuario**
+
+**Problema Original:**
+```java
+// ❌ INCORRETO - Usava request.nome() em vez de request.tipoUsuario().nome()
+if (request.tipoUsuario() != null) {
+    TipoUsuarioDTO tipoUsuario = tipoUsuarioService.findByName(request.nome());
+    existingUsuario.setTipoUsuario(new TipoUsuario(tipoUsuario.id(), tipoUsuario.nome()));
+}
+```
+
+**Solução Implementada:**
+```java
+// ✅ CORRETO - Usa o ID diretamente para maior eficiência
+if (request.tipoUsuario() != null && request.tipoUsuario().id() != null) {
+    TipoUsuarioDTO tipoUsuario = tipoUsuarioService.findById(request.tipoUsuario().id());
+    if (tipoUsuario != null) {
+        existingUsuario.setTipoUsuario(new TipoUsuario(tipoUsuario.id(), tipoUsuario.nome()));
+    }
+}
+```
+
+#### 2. **Melhorias Implementadas**
+
+- ✅ **Uso do ID**: Em vez de buscar por nome, agora usa o ID diretamente
+- ✅ **Validação de nulos**: Verifica se `tipoUsuario` e `id` não são nulos
+- ✅ **Verificação de existência**: Confirma se o tipo de usuário foi encontrado
+- ✅ **Performance**: Busca por ID é mais eficiente que busca por nome
+- ✅ **Robustez**: Tratamento adequado de casos onde o tipo não existe
+
+#### 3. **Testes Atualizados**
+
+O teste `UpdateUsuarioUseCaseTest` foi atualizado para refletir as mudanças:
+
+```java
+// Antes
+when(tipoUsuarioService.findByName(any())).thenReturn(tipoUsuarioDTO);
+
+// Depois
+when(tipoUsuarioService.findById(1L)).thenReturn(tipoUsuarioDTO);
+verify(tipoUsuarioService).findById(1L);
+```
+
+## Como Atualizar o Endereço de um Usuário
+
+### Implementação
+
+A funcionalidade de atualização de endereço foi implementada no `UpdateUsuarioUseCaseImpl`. Aqui está como funciona:
+
+#### 1. **Método `updateEndereco`**
+
+```java
+private void updateEndereco(UsuarioEditRequest request, Usuario existingUsuario) {
+    // Convert DTO to domain model
+    var enderecoDTO = request.endereco();
+    var enderecoDomain = enderecoMapper.toEndereco(enderecoDTO);
+    
+    // Get existing address or create new one
+    var existingEndereco = existingUsuario.getEndereco();
+    if (existingEndereco == null) {
+        // If no existing address, set the new one
+        existingUsuario.setEndereco(enderecoDomain);
+    } else {
+        // If existing address, update it with new values
+        existingEndereco.updateAddress(
+            enderecoDomain.getLogradouro(),
+            enderecoDomain.getNumero(),
+            enderecoDomain.getComplemento(),
+            enderecoDomain.getBairro(),
+            enderecoDomain.getCidade(),
+            enderecoDomain.getEstado(),
+            enderecoDomain.getCep()
+        );
+    }
+}
+```
+
+#### 2. **Uso via API REST**
+
+```bash
+PUT /api/v1/usuarios/{id}
+Content-Type: application/json
+
+{
+    "nome": "João Silva Atualizado",
+    "email": "joao.novo@email.com",
+    "senha": "novaSenha123",
+    "tipoUsuario": {
+        "id": 1,
+        "nome": "CLIENTE"
+    },
+    "endereco": {
+        "logradouro": "Rua Nova",
+        "numero": "456",
+        "complemento": "Apto 2",
+        "bairro": "Vila Nova",
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "cep": "04567890"
+    }
+}
+```
+
+#### 3. **Características da Implementação**
+
+- ✅ **Conversão automática**: DTO → Domain Model usando `EnderecoMapper`
+- ✅ **Atualização inteligente**: Se o usuário já tem endereço, atualiza os campos; se não tem, cria um novo
+- ✅ **Validação de campos**: Usa o método `updateAddress` do modelo `Endereco` que valida campos obrigatórios
+- ✅ **Tratamento de nulos**: Campos nulos ou vazios não sobrescrevem valores existentes
+- ✅ **Transação**: Operação é executada dentro de uma transação para garantir consistência
+- ✅ **TipoUsuario otimizado**: Usa ID para busca eficiente em vez de nome
+
+#### 4. **Modelo de Domínio Endereco**
+
+O modelo `Endereco` possui métodos de negócio:
+
+```java
+// Valida se o endereço é válido
+public boolean isValid()
+
+// Retorna o endereço completo formatado
+public String getFullAddress()
+
+// Atualiza os campos do endereço
+public void updateAddress(String logradouro, String numero, String complemento, 
+                         String bairro, String cidade, String estado, String cep)
+```
+
+#### 5. **Testes**
+
+A funcionalidade é testada em:
+- `UpdateUsuarioUseCaseTest`: Testes unitários do caso de uso
+- `UsuarioIntegrationTest`: Testes de integração da API
+- `UsuarioControllerTest`: Testes do controller REST
+
+### Exemplo de Uso Completo
+
+```java
+// 1. Criar request de atualização
+UsuarioEditRequest request = new UsuarioEditRequest(
+    "João Silva Atualizado",
+    "joao.novo@email.com",
+    new TipoUsuarioDTO(1L, "CLIENTE"), // Usando ID para eficiência
+    "novaSenha123",
+    new EnderecoDTO("Rua Nova", "456", "Apto 2", "Vila Nova", "São Paulo", "SP", "04567890")
+);
+
+// 2. Executar atualização
+UsuarioResponse response = updateUsuarioUseCase.execute(1L, request);
+
+// 3. Verificar resultado
+assert response.endereco().logradouro().equals("Rua Nova");
+assert response.endereco().numero().equals("456");
+```
+
+### Dependências
+
+- `EnderecoMapper`: Para conversão entre DTO e Domain Model
+- `UsuarioDomainService`: Para operações de domínio
+- `PasswordHasher`: Para hash de senha (se fornecida)
+- `TipoUsuarioService`: Para validação de tipo de usuário (usando ID)
