@@ -1,5 +1,6 @@
 package br.com.fiap.tech_challenge_2.infrastructure.persistence.repository;
 
+import br.com.fiap.tech_challenge_2.domain.exception.ForeignKeyViolationException;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import br.com.fiap.tech_challenge_2.domain.repository.UsuarioRepository;
 import br.com.fiap.tech_challenge_2.infrastructure.persistence.entity.UsuarioEntity;
@@ -44,7 +45,16 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
 
     @Override
     public void deleteById(Long id) {
-        jpaRepository.deleteById(id);
+        try {
+            jpaRepository.deleteById(id);
+        } catch (Exception e) {
+            if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+                throw new ForeignKeyViolationException(
+                        "Não é possível excluir este usuário pois existem registros vinculados a ele."
+                );
+            }
+            throw e;
+        }
     }
 
     @Override

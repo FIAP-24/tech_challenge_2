@@ -2,7 +2,9 @@ package br.com.fiap.tech_challenge_2.interfaces.controller;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
 import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditPassRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
+import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
 import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
 import br.com.fiap.tech_challenge_2.application.usecase.*;
@@ -16,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -23,6 +26,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import java.time.LocalDate;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

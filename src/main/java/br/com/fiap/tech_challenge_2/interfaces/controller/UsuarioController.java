@@ -1,5 +1,6 @@
 package br.com.fiap.tech_challenge_2.interfaces.controller;
 
+import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditPassRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioLoginRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
@@ -27,6 +28,8 @@ public class UsuarioController {
     private final UpdateUsuarioUseCase updateUsuarioUseCase;
     private final DeleteUsuarioUseCase deleteUsuarioUseCase;
     private final AuthenticateUsuarioUseCase authenticateUsuarioUseCase;
+    private final UpdatePassUsuarioUseCase passUsuarioUseCase;
+
 
     @Operation(summary = "Lista todos os usuários.")
     @GetMapping
@@ -76,5 +79,16 @@ public class UsuarioController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         deleteUsuarioUseCase.execute(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Usuário removido com sucesso"));
+    }
+
+    @Operation(summary = "Atualiza senha do usuário.")
+    @PutMapping("/atualizar-senha")
+    public ResponseEntity<ApiResponse<Boolean>> updatePass(@Valid @RequestBody UsuarioEditPassRequest passRequest) {
+        boolean authenticated = passUsuarioUseCase.execute(passRequest);
+        return ResponseEntity.ok(
+                authenticated ?
+                        ApiResponse.success(true, "Alteração bem-sucedida") :
+                        ApiResponse.error("Falha na Alteração")
+        );
     }
 }
