@@ -3,6 +3,7 @@ package br.com.fiap.tech_challenge_2.domain.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +43,7 @@ class RestauranteTest {
         itemCardapio.setId(1L);
         itemCardapio.setNome("Pizza Margherita");
         itemCardapio.setDescricao("Pizza tradicional italiana");
-        itemCardapio.setPreco(25.90);
+        itemCardapio.setPreco(BigDecimal.valueOf(25.90));
         itemCardapio.setDisponivelApenasNoLocal(false);
     }
 

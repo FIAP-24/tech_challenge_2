@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Component
 @RequiredArgsConstructor
 public class CreateItemCardapioUseCaseImpl implements CreateItemCardapioUseCase {
@@ -23,7 +25,7 @@ public class CreateItemCardapioUseCaseImpl implements CreateItemCardapioUseCase 
     public ItemCardapio execute(ItemCardapioRequestDTO request) {
         // Validate request
         validateRequest(request);
-        
+
         // Find restaurant
         Restaurante restaurante = restauranteDomainService.findRestauranteById(request.restauranteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurante não encontrado com id: " + request.restauranteId()));
@@ -48,7 +50,7 @@ public class CreateItemCardapioUseCaseImpl implements CreateItemCardapioUseCase 
         if (request.nome() == null || request.nome().trim().isEmpty()) {
             throw new IllegalArgumentException("Nome do item é obrigatório");
         }
-        if (request.preco() == null || request.preco() <= 0) {
+        if (request.preco() == null || request.preco().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Preço deve ser maior que zero");
         }
         if (request.restauranteId() == null) {

@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "item_cardapio")
 @Data
@@ -25,7 +27,7 @@ public class ItemCardapioEntity {
     private String descricao;
 
     @Column(nullable = false)
-    private Double preco;
+    private BigDecimal preco;
 
     @Column
     private boolean disponivelApenasNoLocal;

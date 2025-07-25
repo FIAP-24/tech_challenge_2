@@ -43,7 +43,7 @@ class AuthenticateUsuarioUseCaseTest {
         usuario.setLogin("joao123");
         usuario.setSenha("senhaHashada");
         usuario.setDataUpdate(LocalDate.now());
-        
+
         request = new UsuarioLoginRequest("joao123", "senha123");
     }
 
@@ -58,7 +58,7 @@ class AuthenticateUsuarioUseCaseTest {
 
         // Then
         assertTrue(result);
-        
+
         verify(usuarioDomainService).findUserByLogin("joao123");
         verify(passwordHasher).verifyPassword("senha123", "senhaHashada");
     }
@@ -72,9 +72,9 @@ class AuthenticateUsuarioUseCaseTest {
         AuthenticationException exception = assertThrows(AuthenticationException.class, () -> {
             authenticateUsuarioUseCase.execute(new UsuarioLoginRequest("usuarioinexistente", "senha123"));
         });
-        
+
         assertEquals("Login não encontrado", exception.getMessage());
-        
+
         verify(usuarioDomainService).findUserByLogin("usuarioinexistente");
         verify(passwordHasher, never()).verifyPassword(any(), any());
     }
@@ -89,9 +89,9 @@ class AuthenticateUsuarioUseCaseTest {
         AuthenticationException exception = assertThrows(AuthenticationException.class, () -> {
             authenticateUsuarioUseCase.execute(new UsuarioLoginRequest("joao123", "senhaErrada"));
         });
-        
+
         assertEquals("Senha incorreta", exception.getMessage());
-        
+
         verify(usuarioDomainService).findUserByLogin("joao123");
         verify(passwordHasher).verifyPassword("senhaErrada", "senhaHashada");
     }
@@ -102,9 +102,9 @@ class AuthenticateUsuarioUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             authenticateUsuarioUseCase.execute(null);
         });
-        
+
         assertEquals("Request cannot be null", exception.getMessage());
-        
+
         verify(usuarioDomainService, never()).findUserByLogin(any());
         verify(passwordHasher, never()).verifyPassword(any(), any());
     }
@@ -115,9 +115,9 @@ class AuthenticateUsuarioUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             authenticateUsuarioUseCase.execute(new UsuarioLoginRequest(null, "senha123"));
         });
-        
+
         assertEquals("Login is required", exception.getMessage());
-        
+
         verify(usuarioDomainService, never()).findUserByLogin(any());
         verify(passwordHasher, never()).verifyPassword(any(), any());
     }
@@ -128,9 +128,9 @@ class AuthenticateUsuarioUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             authenticateUsuarioUseCase.execute(new UsuarioLoginRequest("", "senha123"));
         });
-        
+
         assertEquals("Login is required", exception.getMessage());
-        
+
         verify(usuarioDomainService, never()).findUserByLogin(any());
         verify(passwordHasher, never()).verifyPassword(any(), any());
     }
@@ -141,9 +141,9 @@ class AuthenticateUsuarioUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             authenticateUsuarioUseCase.execute(new UsuarioLoginRequest("   ", "senha123"));
         });
-        
+
         assertEquals("Login is required", exception.getMessage());
-        
+
         verify(usuarioDomainService, never()).findUserByLogin(any());
         verify(passwordHasher, never()).verifyPassword(any(), any());
     }
@@ -154,9 +154,9 @@ class AuthenticateUsuarioUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             authenticateUsuarioUseCase.execute(new UsuarioLoginRequest("joao123", null));
         });
-        
+
         assertEquals("Senha is required", exception.getMessage());
-        
+
         verify(usuarioDomainService, never()).findUserByLogin(any());
         verify(passwordHasher, never()).verifyPassword(any(), any());
     }
@@ -167,9 +167,9 @@ class AuthenticateUsuarioUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             authenticateUsuarioUseCase.execute(new UsuarioLoginRequest("joao123", ""));
         });
-        
+
         assertEquals("Senha is required", exception.getMessage());
-        
+
         verify(usuarioDomainService, never()).findUserByLogin(any());
         verify(passwordHasher, never()).verifyPassword(any(), any());
     }
@@ -180,9 +180,9 @@ class AuthenticateUsuarioUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             authenticateUsuarioUseCase.execute(new UsuarioLoginRequest("joao123", "   "));
         });
-        
+
         assertEquals("Senha is required", exception.getMessage());
-        
+
         verify(usuarioDomainService, never()).findUserByLogin(any());
         verify(passwordHasher, never()).verifyPassword(any(), any());
     }

@@ -3,6 +3,8 @@ package br.com.fiap.tech_challenge_2.domain.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ItemCardapioTest {
@@ -20,7 +22,7 @@ class ItemCardapioTest {
         itemCardapio.setId(1L);
         itemCardapio.setNome("Pizza Margherita");
         itemCardapio.setDescricao("Pizza tradicional italiana");
-        itemCardapio.setPreco(25.90);
+        itemCardapio.setPreco(BigDecimal.valueOf(25.90));
         itemCardapio.setDisponivelApenasNoLocal(false);
         itemCardapio.setFotoPath("/fotos/pizza.jpg");
         itemCardapio.setRestaurante(restaurante);
@@ -86,7 +88,7 @@ class ItemCardapioTest {
     @Test
     void testIsValidForRegistration_ZeroPreco() {
         // Given
-        itemCardapio.setPreco(0.0);
+        itemCardapio.setPreco(BigDecimal.valueOf(0.0));
 
         // When
         boolean result = itemCardapio.isValidForRegistration();
@@ -98,7 +100,7 @@ class ItemCardapioTest {
     @Test
     void testIsValidForRegistration_NegativePreco() {
         // Given
-        itemCardapio.setPreco(-10.0);
+        itemCardapio.setPreco(BigDecimal.valueOf(-10.0));
 
         // When
         boolean result = itemCardapio.isValidForRegistration();
@@ -134,10 +136,10 @@ class ItemCardapioTest {
     @Test
     void testUpdatePrice_Success() {
         // When
-        itemCardapio.updatePrice(30.50);
+        itemCardapio.updatePrice(BigDecimal.valueOf(30.50));
 
         // Then
-        assertEquals(30.50, itemCardapio.getPreco());
+        assertEquals(BigDecimal.valueOf(30.50), itemCardapio.getPreco());
     }
 
     @Test
@@ -154,7 +156,7 @@ class ItemCardapioTest {
     void testUpdatePrice_ZeroPrice() {
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            itemCardapio.updatePrice(0.0);
+            itemCardapio.updatePrice(BigDecimal.valueOf(0.0));
         });
 
         assertEquals("Price must be greater than zero", exception.getMessage());
@@ -164,7 +166,7 @@ class ItemCardapioTest {
     void testUpdatePrice_NegativePrice() {
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            itemCardapio.updatePrice(-10.0);
+            itemCardapio.updatePrice(BigDecimal.valueOf(-10.0));
         });
 
         assertEquals("Price must be greater than zero", exception.getMessage());
@@ -182,12 +184,12 @@ class ItemCardapioTest {
     @Test
     void testUpdateItemInfo_Success() {
         // When
-        itemCardapio.updateItemInfo("Nova Pizza", "Nova descrição", 35.90);
+        itemCardapio.updateItemInfo("Nova Pizza", "Nova descrição", BigDecimal.valueOf(35.90));
 
         // Then
         assertEquals("Nova Pizza", itemCardapio.getNome());
         assertEquals("Nova descrição", itemCardapio.getDescricao());
-        assertEquals(35.90, itemCardapio.getPreco());
+        assertEquals(BigDecimal.valueOf(35.90), itemCardapio.getPreco());
     }
 
     @Test
@@ -198,29 +200,29 @@ class ItemCardapioTest {
         // Then
         assertEquals("Nova Pizza", itemCardapio.getNome());
         assertEquals("Pizza tradicional italiana", itemCardapio.getDescricao()); // unchanged
-        assertEquals(25.90, itemCardapio.getPreco()); // unchanged
+        assertEquals(BigDecimal.valueOf(25.90), itemCardapio.getPreco()); // unchanged
     }
 
     @Test
     void testUpdateItemInfo_EmptyValues() {
         // When
-        itemCardapio.updateItemInfo("", "", 0.0);
+        itemCardapio.updateItemInfo("", "", BigDecimal.valueOf(0.0));
 
         // Then
         assertEquals("Pizza Margherita", itemCardapio.getNome()); // unchanged
         assertEquals("", itemCardapio.getDescricao()); // trimmed empty string
-        assertEquals(25.90, itemCardapio.getPreco()); // unchanged
+        assertEquals(BigDecimal.valueOf(25.90), itemCardapio.getPreco()); // unchanged
     }
 
     @Test
     void testUpdateItemInfo_BlankValues() {
         // When
-        itemCardapio.updateItemInfo("   ", "   ", 0.0);
+        itemCardapio.updateItemInfo("   ", "   ", BigDecimal.valueOf(0.0));
 
         // Then
         assertEquals("Pizza Margherita", itemCardapio.getNome()); // unchanged
         assertEquals("", itemCardapio.getDescricao()); // trimmed blank string
-        assertEquals(25.90, itemCardapio.getPreco()); // unchanged
+        assertEquals(BigDecimal.valueOf(25.90), itemCardapio.getPreco()); // unchanged
     }
 
     @Test
@@ -247,7 +249,7 @@ class ItemCardapioTest {
     @Test
     void testGetFormattedPrice_ZeroPrice() {
         // Given
-        itemCardapio.setPreco(0.0);
+        itemCardapio.setPreco(BigDecimal.valueOf(0.0));
 
         // When
         String result = itemCardapio.getFormattedPrice();
@@ -259,7 +261,7 @@ class ItemCardapioTest {
     @Test
     void testGetFormattedPrice_DecimalPrice() {
         // Given
-        itemCardapio.setPreco(25.99);
+        itemCardapio.setPreco(BigDecimal.valueOf(25.99));
 
         // When
         String result = itemCardapio.getFormattedPrice();
