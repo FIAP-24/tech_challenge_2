@@ -42,7 +42,7 @@ class FindItemCardapioUseCaseTest {
         itemCardapio.setId(1L);
         itemCardapio.setNome("Pizza Margherita");
         itemCardapio.setDescricao("Pizza tradicional italiana");
-        itemCardapio.setPreco(25.90);
+        itemCardapio.setPreco(BigDecimal.valueOf(25.90));
         itemCardapio.setDisponivelApenasNoLocal(true);
         itemCardapio.setFotoPath("/fotos/pizza.jpg");
         itemCardapio.setRestaurante(restaurante);
