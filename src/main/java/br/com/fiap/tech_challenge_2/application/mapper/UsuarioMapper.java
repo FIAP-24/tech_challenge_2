@@ -2,19 +2,16 @@ package br.com.fiap.tech_challenge_2.application.mapper;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
-import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
+import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
-
-    UsuarioMapper INSTANCE = Mappers.getMapper(UsuarioMapper.class);
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "nome", source = "nome")
