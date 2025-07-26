@@ -1,32 +1,25 @@
 package br.com.fiap.tech_challenge_2.interfaces.controller;
 
-import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
-import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
-import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditPassRequest;
-import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
-import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
+import br.com.fiap.tech_challenge_2.application.dto.request.*;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
-import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
 import br.com.fiap.tech_challenge_2.application.usecase.*;
+import br.com.fiap.tech_challenge_2.interfaces.exception.AuthenticationException;
 import br.com.fiap.tech_challenge_2.interfaces.exception.DuplicateResourceException;
 import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -41,20 +34,23 @@ class UsuarioControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private CreateUsuarioUseCase createUsuarioUseCase;
 
-    @MockBean
+    @MockitoBean
     private FindUsuarioUseCase findUsuarioUseCase;
 
-    @MockBean
+    @MockitoBean
     private UpdateUsuarioUseCase updateUsuarioUseCase;
 
-    @MockBean
+    @MockitoBean
     private DeleteUsuarioUseCase deleteUsuarioUseCase;
 
-    @MockBean
+    @MockitoBean
     private AuthenticateUsuarioUseCase authenticateUsuarioUseCase;
+
+    @MockitoBean
+    private UpdatePassUsuarioUseCase updatePassUsuarioUseCase;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -63,6 +59,9 @@ class UsuarioControllerTest {
     private UsuarioResponse usuarioResponse;
     private EnderecoDTO enderecoDTO;
     private TipoUsuarioDTO tipoUsuarioDTO;
+    private UsuarioEditRequest usuarioEditRequest;
+    private UsuarioEditPassRequest usuarioEditPassRequest;
+    private UsuarioLoginRequest usuarioLoginRequest;
 
     @BeforeEach
     void setUp() {
@@ -86,6 +85,26 @@ class UsuarioControllerTest {
                 "joao123",
                 enderecoDTO,
                 LocalDate.now()
+        );
+
+        usuarioEditRequest = new UsuarioEditRequest(
+                "João Silva",
+                "joao@email.com",
+                1l,
+                "123456",
+                enderecoDTO
+        );
+
+        usuarioEditPassRequest = new UsuarioEditPassRequest(
+                "joao123",
+                "123456",
+                "6543213",
+                "6543213"
+        );
+
+        usuarioLoginRequest = new UsuarioLoginRequest(
+                "joao123",
+                "123456"
         );
     }
 
@@ -144,6 +163,26 @@ class UsuarioControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(createUsuarioUseCase, never()).execute(any());
+    }
+
+    @Test
+    void testUpdateUsuario_Success() throws Exception {
+        // Given
+        when(updateUsuarioUseCase.execute(any(Long.class), any(UsuarioEditRequest.class))).thenReturn(usuarioResponse);
+
+        // When & Then
+        mockMvc.perform(put("/api/v1/usuarios/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(usuarioEditRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.nome").value("João Silva"))
+                .andExpect(jsonPath("$.data.email").value("joao@email.com"))
+                .andExpect(jsonPath("$.data.login").value("joao123"))
+                .andExpect(jsonPath("$.data.tipoUsuario.nome").value("CLIENTE"))
+                .andExpect(jsonPath("$.status").value("SUCCESS"));
+
+        verify(updateUsuarioUseCase).execute(any(Long.class), any(UsuarioEditRequest.class));
     }
 
     @Test
@@ -238,5 +277,51 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$.message").value("Usuário não encontrado com id: 999"));
 
         verify(deleteUsuarioUseCase).execute(999L);
+    }
+
+    @Test
+    void testUpdatePass_Success() throws Exception {
+        // Given
+        when(updatePassUsuarioUseCase.execute(any(UsuarioEditPassRequest.class))).thenReturn(true);
+
+        // When & Then
+        mockMvc.perform(put("/api/v1/usuarios/atualizar-senha")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(usuarioEditPassRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value(true));
+
+        verify(updatePassUsuarioUseCase).execute(any(UsuarioEditPassRequest.class));
+    }
+
+    @Test
+    void testUsuarioLogin_Success() throws Exception {
+        // Given
+        when(authenticateUsuarioUseCase.execute(any(UsuarioLoginRequest.class))).thenReturn(true);
+
+        // When & Then
+        mockMvc.perform(post("/api/v1/usuarios/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(usuarioLoginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value(true));
+
+        verify(authenticateUsuarioUseCase).execute(any(UsuarioLoginRequest.class));
+    }
+
+    @Test
+    void testUsuarioLogin_Wrong() throws Exception {
+        // Given
+        doThrow(new AuthenticationException("Senha incorreta"))
+                .when(authenticateUsuarioUseCase).execute(any(UsuarioLoginRequest.class));
+
+        // When & Then
+        mockMvc.perform(post("/api/v1/usuarios/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(usuarioLoginRequest)))
+                .andExpect(status().isUnauthorized());
+
+
+        verify(authenticateUsuarioUseCase).execute(any(UsuarioLoginRequest.class));
     }
 } 

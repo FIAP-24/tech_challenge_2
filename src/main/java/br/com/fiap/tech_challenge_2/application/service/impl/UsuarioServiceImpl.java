@@ -6,6 +6,7 @@ import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
 import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
 import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
+import br.com.fiap.tech_challenge_2.domain.model.Endereco;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import br.com.fiap.tech_challenge_2.domain.service.UsuarioDomainService;
 import br.com.fiap.tech_challenge_2.infrastructure.utils.PasswordHasher;
@@ -97,17 +98,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (request.senha() != null && !request.senha().isEmpty()) {
             existingUsuario.updatePassword(passwordHasher.hashPassword(request.senha()));
         }
-        
-        // Update address if provided
-        if (request.endereco() != null) {
-            updateEndereco(request, existingUsuario);
-        }
-    }
 
-    private void updateEndereco(UsuarioEditRequest request, Usuario existingUsuario) {
-        // This would need to be implemented based on your Endereco model
-        // For now, we'll leave it as a placeholder
-        // You would need to create an EnderecoMapper and handle the address update
+        if (request.endereco() != null) {
+            if (existingUsuario.getEndereco() == null) {
+                existingUsuario.setEndereco(new Endereco());
+            }
+            existingUsuario.getEndereco()
+                    .updateAddress(request.endereco().logradouro(), request.endereco().numero(), request.endereco().complemento(), request.endereco().bairro(), request.endereco().cidade(), request.endereco().estado(), request.endereco().cep());
+        }
     }
 
     @Override

@@ -21,31 +21,31 @@ public class Endereco {
     // Domain business logic methods
     public boolean isValid() {
         return logradouro != null && !logradouro.trim().isEmpty() &&
-               numero != null && !numero.trim().isEmpty() &&
-               bairro != null && !bairro.trim().isEmpty() &&
-               cidade != null && !cidade.trim().isEmpty() &&
-               estado != null && !estado.trim().isEmpty() &&
-               cep != null && !cep.trim().isEmpty();
+                numero != null && !numero.trim().isEmpty() &&
+                bairro != null && !bairro.trim().isEmpty() &&
+                cidade != null && !cidade.trim().isEmpty() &&
+                estado != null && !estado.trim().isEmpty() &&
+                cep != null && !cep.trim().isEmpty();
     }
 
     public String getFullAddress() {
         StringBuilder address = new StringBuilder();
         address.append(logradouro).append(", ").append(numero);
-        
+
         if (complemento != null && !complemento.trim().isEmpty()) {
             address.append(" - ").append(complemento);
         }
-        
+
         address.append(" - ").append(bairro)
-               .append(", ").append(cidade)
-               .append(" - ").append(estado)
-               .append(", CEP: ").append(cep);
-        
+                .append(", ").append(cidade)
+                .append(" - ").append(estado)
+                .append(", CEP: ").append(cep);
+
         return address.toString();
     }
 
-    public void updateAddress(String logradouro, String numero, String complemento, 
-                            String bairro, String cidade, String estado, String cep) {
+    public void updateAddress(String logradouro, String numero, String complemento,
+                              String bairro, String cidade, String estado, String cep) {
         if (logradouro != null && !logradouro.trim().isEmpty()) {
             this.logradouro = logradouro.trim();
         }

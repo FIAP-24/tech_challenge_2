@@ -11,7 +11,7 @@
     <groupId>br.com.fiap</groupId>
     <artifactId>tech_challenge_2</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>tech_challenge_1</name>
+    <name>tech_challenge_2</name>
     <description>Demo project for Spring Boot</description>
     <url/>
     <licenses>
@@ -155,8 +155,8 @@
                         </goals>
                         <configuration>
                             <excludes>
-                                <exclude>br/com/fiap/tech_challenge_1/TechChallenge1Application*</exclude>
-                                <exclude>br/com/fiap/tech_challenge_1/exception/GlobalExceptionHandler*</exclude>
+                                <exclude>br/com/fiap/tech_challenge_2/TechChallenge2Application*</exclude>
+                                <exclude>br/com/fiap/tech_challenge_2/interfaces/exception/GlobalExceptionHandler*</exclude>
                             </excludes>
                         </configuration>
                     </execution>
