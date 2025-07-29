@@ -1,7 +1,8 @@
 package br.com.fiap.tech_challenge_2.application.usecase.impl;
 
-import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequestDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteDTO;
 import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
+import br.com.fiap.tech_challenge_2.application.mapper.RestauranteMapper;
 import br.com.fiap.tech_challenge_2.application.usecase.CreateRestauranteUseCase;
 import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
@@ -19,10 +20,11 @@ public class CreateRestauranteUseCaseImpl implements CreateRestauranteUseCase {
     private final UsuarioDomainService usuarioDomainService;
     private final RestauranteDomainService restauranteDomainService;
     private final EnderecoMapper enderecoMapper;
+    private final RestauranteMapper mapper;
 
     @Override
     @Transactional
-    public Restaurante execute(RestauranteRequestDTO request) {
+    public Restaurante execute(RestauranteDTO request) {
         // Validate request
         validateRequest(request);
         
@@ -46,7 +48,7 @@ public class CreateRestauranteUseCaseImpl implements CreateRestauranteUseCase {
         return restauranteDomainService.createRestaurante(restaurante);
     }
 
-    private void validateRequest(RestauranteRequestDTO request) {
+    private void validateRequest(RestauranteDTO request) {
         if (request == null) {
             throw new IllegalArgumentException("Request cannot be null");
         }
