@@ -1,7 +1,7 @@
 package br.com.fiap.tech_challenge_2.application.usecase;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
-import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequestDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteDTO;
 import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
 import br.com.fiap.tech_challenge_2.application.usecase.impl.CreateRestauranteUseCaseImpl;
 import br.com.fiap.tech_challenge_2.domain.model.Endereco;
@@ -35,7 +35,7 @@ class CreateRestauranteUseCaseTest {
     @InjectMocks
     private CreateRestauranteUseCaseImpl createRestauranteUseCase;
 
-    private RestauranteRequestDTO validRequest;
+    private RestauranteDTO validRequest;
     private Usuario owner;
     private Endereco endereco;
     private Restaurante expectedRestaurante;
@@ -43,7 +43,7 @@ class CreateRestauranteUseCaseTest {
     @BeforeEach
     void setUp() {
         EnderecoDTO enderecoDTO = new EnderecoDTO("Rua Teste", "123", "Apto 1", "Centro", "São Paulo", "SP", "01234567");
-        validRequest = new RestauranteRequestDTO("Restaurante Teste UseCase", enderecoDTO, "Italiana", "Seg-Sex: 09:00-22:00", 1L);
+        validRequest = new RestauranteDTO("Restaurante Teste UseCase", enderecoDTO, "Italiana", "Seg-Sex: 09:00-22:00", 1L);
         
         owner = new Usuario();
         owner.setId(1L);

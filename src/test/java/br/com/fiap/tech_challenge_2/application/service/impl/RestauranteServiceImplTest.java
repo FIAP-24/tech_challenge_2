@@ -1,8 +1,10 @@
 package br.com.fiap.tech_challenge_2.application.service.impl;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
-import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequestDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
 import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
+import br.com.fiap.tech_challenge_2.application.mapper.RestauranteMapper;
 import br.com.fiap.tech_challenge_2.domain.model.Endereco;
 import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
@@ -27,7 +29,10 @@ import static org.mockito.Mockito.*;
 class RestauranteServiceImplTest {
 
     @Mock
-    private RestauranteRepository restauranteRepository;
+    private RestauranteRepository repository;
+
+    @Mock
+    private RestauranteMapper mapper;
 
     @Mock
     private UsuarioRepository usuarioRepository;
@@ -38,10 +43,10 @@ class RestauranteServiceImplTest {
     @InjectMocks
     private RestauranteServiceImpl restauranteService;
 
-    private RestauranteRequestDTO requestDTO;
+    private RestauranteDTO restauranteDTO;
+    private Restaurante restaurante;
     private Usuario dono;
     private Endereco endereco;
-    private Restaurante restaurante;
     private EnderecoDTO enderecoDTO;
 
     @BeforeEach
@@ -53,6 +58,8 @@ class RestauranteServiceImplTest {
         dono.setLogin("joao123");
         dono.setDataUpdate(LocalDate.now());
 
+        enderecoDTO = new EnderecoDTO("Rua do Restaurante", "100", null, "Centro", "São Paulo", "SP", "01234567");
+
         endereco = new Endereco();
         endereco.setLogradouro("Rua do Restaurante");
         endereco.setNumero("100");
@@ -61,8 +68,7 @@ class RestauranteServiceImplTest {
         endereco.setEstado("SP");
         endereco.setCep("01234567");
 
-        enderecoDTO = new EnderecoDTO("Rua do Restaurante", "100", null, "Centro", "São Paulo", "SP", "01234567");
-        requestDTO = new RestauranteRequestDTO("Restaurante Teste", enderecoDTO, "Italiana", "12:00-22:00", 1L);
+        restauranteDTO = new RestauranteDTO("Restaurante Teste", enderecoDTO, "Italiana", "12:00-22:00", 1L);
 
         restaurante = new Restaurante();
         restaurante.setId(1L);
@@ -76,24 +82,22 @@ class RestauranteServiceImplTest {
     @Test
     void testCreate_Success() {
         // Given
+        when(mapper.toEntity(restauranteDTO)).thenReturn(restaurante);
+        when(repository.save(restaurante)).thenReturn(restaurante);
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(dono));
-        when(enderecoMapper.toEndereco(requestDTO.endereco())).thenReturn(endereco);
-        when(restauranteRepository.save(any(Restaurante.class))).thenReturn(restaurante);
+        when(mapper.toDTO(restaurante)).thenReturn(restauranteDTO);
 
         // When
-        Restaurante result = restauranteService.create(requestDTO);
+        RestauranteDTO result = restauranteService.create(restauranteDTO);
 
         // Then
         assertNotNull(result);
-        assertEquals("Restaurante Teste", result.getNome());
-        assertEquals("Italiana", result.getTipoCozinha());
-        assertEquals("12:00-22:00", result.getHorarioFuncionamento());
-        assertEquals(dono, result.getDono());
-        assertEquals(endereco, result.getEndereco());
+        assertEquals(restauranteDTO, result);
 
         verify(usuarioRepository).findById(1L);
-        verify(enderecoMapper).toEndereco(requestDTO.endereco());
-        verify(restauranteRepository).save(any(Restaurante.class));
+        verify(mapper).toEntity(restauranteDTO);
+        verify(repository).save(restaurante);
+        verify(mapper).toDTO(restaurante);
     }
 
     @Test
@@ -103,35 +107,36 @@ class RestauranteServiceImplTest {
 
         // When & Then
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            restauranteService.create(new RestauranteRequestDTO("Restaurante", enderecoDTO, "Italiana", "12:00-22:00", 999L));
+            restauranteService.create(new RestauranteDTO("Restaurante", enderecoDTO, "Italiana", "12:00-22:00", 999L));
         });
 
         assertEquals("Usuário (dono) não encontrado com id: 999", exception.getMessage());
 
         verify(usuarioRepository).findById(999L);
         verify(enderecoMapper, never()).toEndereco(any());
-        verify(restauranteRepository, never()).save(any());
+        verify(repository, never()).save(any());
     }
 
     @Test
     void testFindById_Success() {
         // Given
-        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
+        when(repository.findById(1L)).thenReturn(Optional.of(restaurante));
+        when(mapper.toDTO(restaurante)).thenReturn(restauranteDTO);
 
         // When
-        Restaurante result = restauranteService.findById(1L);
+        RestauranteDTO result = restauranteService.findById(1L);
 
         // Then
         assertNotNull(result);
-        assertEquals(restaurante, result);
+        assertEquals(restauranteDTO, result);
 
-        verify(restauranteRepository).findById(1L);
+        verify(repository).findById(1L);
     }
 
     @Test
     void testFindById_NotFound() {
         // Given
-        when(restauranteRepository.findById(999L)).thenReturn(Optional.empty());
+        when(repository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
@@ -140,121 +145,150 @@ class RestauranteServiceImplTest {
 
         assertEquals("Restaurante não encontrado com id: 999", exception.getMessage());
 
-        verify(restauranteRepository).findById(999L);
+        verify(repository).findById(999L);
+        verify(mapper, never()).toDTO(any());
     }
 
     @Test
     void testFindAll_Success() {
         // Given
         List<Restaurante> restaurantes = List.of(restaurante);
-        when(restauranteRepository.findAll()).thenReturn(restaurantes);
+        when(repository.findAll()).thenReturn(restaurantes);
+        when(mapper.toDTO(restaurante)).thenReturn(restauranteDTO);
+
 
         // When
-        List<Restaurante> result = restauranteService.findAll();
+        List<RestauranteDTO> result = restauranteService.findAll();
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(restaurante, result.get(0));
+        assertEquals(restauranteDTO, result.get(0));
 
-        verify(restauranteRepository).findAll();
+        verify(repository).findAll();
+        verify(mapper).toDTO(restaurante);
     }
 
     @Test
     void testFindAll_EmptyList() {
         // Given
-        when(restauranteRepository.findAll()).thenReturn(List.of());
+        when(repository.findAll()).thenReturn(List.of());
 
         // When
-        List<Restaurante> result = restauranteService.findAll();
+        List<RestauranteDTO> result = restauranteService.findAll();
 
         // Then
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
-        verify(restauranteRepository).findAll();
+        verify(repository).findAll();
+        verify(mapper, never()).toDTO(any());
     }
 
     @Test
     void testUpdate_Success() {
         // Given
-        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(dono));
-        when(enderecoMapper.toEndereco(requestDTO.endereco())).thenReturn(endereco);
-        when(restauranteRepository.save(restaurante)).thenReturn(restaurante);
+        EnderecoDTO updateEnderecoDTO = new EnderecoDTO("Nova Rua do Restaurante", "101", "Novo Complemento", "Novo Bairro", "Belo Horizonte", "MG", "76543210");
+
+        Endereco updateEndereco = new Endereco();
+        updateEndereco.setLogradouro("Nova Rua do Restaurante");
+        updateEndereco.setNumero("101");
+        updateEndereco.setComplemento("Novo Complemento");
+        updateEndereco.setBairro("Novo Bairro");
+        updateEndereco.setCidade("Belo Horizonte");
+        updateEndereco.setEstado("MG");
+        updateEndereco.setCep("76543210");
+
+        Usuario updateDono = new Usuario();
+        updateDono.setId(2L);
+        updateDono.setNome("Lucas Rangel");
+        updateDono.setEmail("lucas@email.com");
+        updateDono.setLogin("lucas123");
+        updateDono.setDataUpdate(LocalDate.now());
+
+        RestauranteDTO updateDTO = new RestauranteDTO("Novo Restaurante", updateEnderecoDTO, "Nova Culinaria", "11:00-20:00", 2L);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(restaurante));
+        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(updateDono));
+        when(enderecoMapper.toEndereco(updateEnderecoDTO)).thenReturn(updateEndereco);
+        when(repository.save(restaurante)).thenReturn(restaurante);
+        when(mapper.toDTO(restaurante)).thenReturn(updateDTO);
 
         // When
-        Restaurante result = restauranteService.update(1L, requestDTO);
+        RestauranteDTO result = restauranteService.update(1L, updateDTO);
 
         // Then
         assertNotNull(result);
-        assertEquals("Restaurante Teste", restaurante.getNome());
-        assertEquals("Italiana", restaurante.getTipoCozinha());
-        assertEquals("12:00-22:00", restaurante.getHorarioFuncionamento());
-        assertEquals(dono, restaurante.getDono());
-        assertEquals(endereco, restaurante.getEndereco());
+        assertEquals("Novo Restaurante", restaurante.getNome());
+        assertEquals("Nova Culinaria", restaurante.getTipoCozinha());
+        assertEquals("11:00-20:00", restaurante.getHorarioFuncionamento());
+        assertEquals(updateDono, restaurante.getDono());
+        assertEquals(updateEndereco, restaurante.getEndereco());
 
-        verify(restauranteRepository).findById(1L);
-        verify(usuarioRepository).findById(1L);
-        verify(enderecoMapper).toEndereco(requestDTO.endereco());
-        verify(restauranteRepository).save(restaurante);
+        verify(repository).findById(1L);
+        verify(usuarioRepository).findById(2L);
+        verify(enderecoMapper).toEndereco(updateDTO.endereco());
+        verify(repository).save(restaurante);
     }
 
     @Test
     void testUpdate_RestauranteNotFound() {
         // Given
-        when(restauranteRepository.findById(999L)).thenReturn(Optional.empty());
+        when(repository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            restauranteService.update(999L, requestDTO);
+            restauranteService.update(999L, restauranteDTO);
         });
 
         assertEquals("Restaurante não encontrado com id: 999", exception.getMessage());
 
-        verify(restauranteRepository).findById(999L);
+        verify(repository).findById(999L);
         verify(usuarioRepository, never()).findById(any());
         verify(enderecoMapper, never()).toEndereco(any());
-        verify(restauranteRepository, never()).save(any());
+        verify(repository, never()).save(any());
+        verify(mapper, never()).toDTO(any());
     }
 
     @Test
     void testUpdate_UsuarioNotFound() {
         // Given
-        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
+        RestauranteDTO updateDTO = new RestauranteDTO("Restaurante", enderecoDTO, "Italiana", "12:00-22:00", 999L);
+        when(repository.findById(1L)).thenReturn(Optional.of(restaurante));
         when(usuarioRepository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            restauranteService.update(1L, new RestauranteRequestDTO("Restaurante", enderecoDTO, "Italiana", "12:00-22:00", 999L));
+            restauranteService.update(1L, updateDTO);
         });
 
         assertEquals("Usuário (dono) não encontrado com id: 999", exception.getMessage());
 
-        verify(restauranteRepository).findById(1L);
+        verify(repository).findById(1L);
         verify(usuarioRepository).findById(999L);
         verify(enderecoMapper, never()).toEndereco(any());
-        verify(restauranteRepository, never()).save(any());
+        verify(repository, never()).save(any());
+        verify(mapper, never()).toDTO(any());
     }
 
     @Test
     void testDelete_Success() {
         // Given
-        when(restauranteRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(restauranteRepository).deleteById(1L);
+        when(repository.existsById(1L)).thenReturn(true);
+        doNothing().when(repository).deleteById(1L);
 
         // When
         assertDoesNotThrow(() -> restauranteService.delete(1L));
 
         // Then
-        verify(restauranteRepository).existsById(1L);
-        verify(restauranteRepository).deleteById(1L);
+        verify(repository).existsById(1L);
+        verify(repository).deleteById(1L);
     }
 
     @Test
     void testDelete_NotFound() {
         // Given
-        when(restauranteRepository.existsById(999L)).thenReturn(false);
+        when(repository.existsById(999L)).thenReturn(false);
 
         // When & Then
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
@@ -263,7 +297,7 @@ class RestauranteServiceImplTest {
 
         assertEquals("Restaurante não encontrado com id: 999", exception.getMessage());
 
-        verify(restauranteRepository).existsById(999L);
-        verify(restauranteRepository, never()).deleteById(any());
+        verify(repository).existsById(999L);
+        verify(repository, never()).deleteById(any());
     }
 } 
