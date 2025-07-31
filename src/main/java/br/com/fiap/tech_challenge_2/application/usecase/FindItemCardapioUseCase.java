@@ -1,6 +1,6 @@
 package br.com.fiap.tech_challenge_2.application.usecase;
 
-import br.com.fiap.tech_challenge_2.domain.model.ItemCardapio;
+import br.com.fiap.tech_challenge_2.application.dto.response.ItemCardapioResponse;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public interface FindItemCardapioUseCase {
      * 
      * @return List of all menu items
      */
-    List<ItemCardapio> findAll();
+    List<ItemCardapioResponse> findAll();
     
     /**
      * Finds a menu item by ID
@@ -20,7 +20,7 @@ public interface FindItemCardapioUseCase {
      * @return Menu item if found
      * @throws ResourceNotFoundException if menu item not found
      */
-    ItemCardapio findById(Long id);
+    ItemCardapioResponse findById(Long id);
     
     /**
      * Finds all menu items for a specific restaurant
@@ -28,7 +28,7 @@ public interface FindItemCardapioUseCase {
      * @param restauranteId Restaurant ID
      * @return List of menu items for the restaurant
      */
-    List<ItemCardapio> findByRestauranteId(Long restauranteId);
+    List<ItemCardapioResponse> findByRestauranteId(Long restauranteId);
     
     /**
      * Finds available menu items for a specific restaurant
@@ -36,5 +36,5 @@ public interface FindItemCardapioUseCase {
      * @param restauranteId Restaurant ID
      * @return List of available menu items for the restaurant
      */
-    List<ItemCardapio> findAvailableByRestauranteId(Long restauranteId);
+    List<ItemCardapioResponse> findAvailableByRestauranteId(Long restauranteId);
 } 

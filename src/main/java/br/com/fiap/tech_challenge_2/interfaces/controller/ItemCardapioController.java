@@ -2,9 +2,9 @@ package br.com.fiap.tech_challenge_2.interfaces.controller;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.ItemCardapioRequestDTO;
 import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
+import br.com.fiap.tech_challenge_2.application.dto.response.ItemCardapioResponse;
 import br.com.fiap.tech_challenge_2.application.usecase.CreateItemCardapioUseCase;
 import br.com.fiap.tech_challenge_2.application.usecase.FindItemCardapioUseCase;
-import br.com.fiap.tech_challenge_2.domain.model.ItemCardapio;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,36 +26,36 @@ public class ItemCardapioController {
 
     @Operation(summary = "Lista todos os itens do cardápio.")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ItemCardapio>>> findAll() {
-        List<ItemCardapio> items = findItemCardapioUseCase.findAll();
+    public ResponseEntity<ApiResponse<List<ItemCardapioResponse>>> findAll() {
+        List<ItemCardapioResponse> items = findItemCardapioUseCase.findAll();
         return ResponseEntity.ok(ApiResponse.success(items));
     }
 
     @Operation(summary = "Busca item do cardápio por ID.")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ItemCardapio>> findById(@PathVariable Long id) {
-        ItemCardapio item = findItemCardapioUseCase.findById(id);
+    public ResponseEntity<ApiResponse<ItemCardapioResponse>> findById(@PathVariable Long id) {
+        ItemCardapioResponse item = findItemCardapioUseCase.findById(id);
         return ResponseEntity.ok(ApiResponse.success(item));
     }
 
     @Operation(summary = "Lista itens do cardápio por restaurante.")
     @GetMapping("/restaurante/{restauranteId}")
-    public ResponseEntity<ApiResponse<List<ItemCardapio>>> findByRestauranteId(@PathVariable Long restauranteId) {
-        List<ItemCardapio> items = findItemCardapioUseCase.findByRestauranteId(restauranteId);
+    public ResponseEntity<ApiResponse<List<ItemCardapioResponse>>> findByRestauranteId(@PathVariable Long restauranteId) {
+        List<ItemCardapioResponse> items = findItemCardapioUseCase.findByRestauranteId(restauranteId);
         return ResponseEntity.ok(ApiResponse.success(items));
     }
 
     @Operation(summary = "Lista itens disponíveis do cardápio por restaurante.")
     @GetMapping("/restaurante/{restauranteId}/disponiveis")
-    public ResponseEntity<ApiResponse<List<ItemCardapio>>> findAvailableByRestauranteId(@PathVariable Long restauranteId) {
-        List<ItemCardapio> items = findItemCardapioUseCase.findAvailableByRestauranteId(restauranteId);
+    public ResponseEntity<ApiResponse<List<ItemCardapioResponse>>> findAvailableByRestauranteId(@PathVariable Long restauranteId) {
+        List<ItemCardapioResponse> items = findItemCardapioUseCase.findAvailableByRestauranteId(restauranteId);
         return ResponseEntity.ok(ApiResponse.success(items));
     }
 
     @Operation(summary = "Cria um novo item do cardápio.")
     @PostMapping
-    public ResponseEntity<ApiResponse<ItemCardapio>> create(@Valid @RequestBody ItemCardapioRequestDTO request) {
-        ItemCardapio created = createItemCardapioUseCase.execute(request);
+    public ResponseEntity<ApiResponse<ItemCardapioResponse>> create(@Valid @RequestBody ItemCardapioRequestDTO request) {
+        ItemCardapioResponse created = createItemCardapioUseCase.execute(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(created, "Item do cardápio criado com sucesso"));

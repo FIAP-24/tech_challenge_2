@@ -1,6 +1,8 @@
 package br.com.fiap.tech_challenge_2.application.usecase.impl;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.ItemCardapioRequestDTO;
+import br.com.fiap.tech_challenge_2.application.dto.response.ItemCardapioResponse;
+import br.com.fiap.tech_challenge_2.application.mapper.ItemCardapioMapper;
 import br.com.fiap.tech_challenge_2.application.usecase.CreateItemCardapioUseCase;
 import br.com.fiap.tech_challenge_2.domain.model.ItemCardapio;
 import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
@@ -19,10 +21,11 @@ public class CreateItemCardapioUseCaseImpl implements CreateItemCardapioUseCase 
 
     private final ItemCardapioDomainService itemCardapioDomainService;
     private final RestauranteDomainService restauranteDomainService;
+    private final ItemCardapioMapper itemCardapioMapper;
 
     @Override
     @Transactional
-    public ItemCardapio execute(ItemCardapioRequestDTO request) {
+    public ItemCardapioResponse execute(ItemCardapioRequestDTO request) {
         // Validate request
         validateRequest(request);
 
@@ -31,16 +34,13 @@ public class CreateItemCardapioUseCaseImpl implements CreateItemCardapioUseCase 
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurante não encontrado com id: " + request.restauranteId()));
 
         // Create menu item
-        ItemCardapio itemCardapio = new ItemCardapio();
-        itemCardapio.setNome(request.nome());
-        itemCardapio.setDescricao(request.descricao());
-        itemCardapio.setPreco(request.preco());
-        itemCardapio.setDisponivelApenasNoLocal(request.disponivelApenasNoLocal());
-        itemCardapio.setFotoPath(request.fotoPath());
+        ItemCardapio itemCardapio = itemCardapioMapper.toEntity(request);
         itemCardapio.setRestaurante(restaurante);
 
         // Use domain service to create menu item
-        return itemCardapioDomainService.createItemCardapio(itemCardapio);
+        ItemCardapio savedItem = itemCardapioDomainService.createItemCardapio(itemCardapio);
+        
+        return itemCardapioMapper.toResponse(savedItem);
     }
 
     private void validateRequest(ItemCardapioRequestDTO request) {

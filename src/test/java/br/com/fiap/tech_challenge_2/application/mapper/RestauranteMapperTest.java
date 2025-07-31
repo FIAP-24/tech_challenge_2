@@ -3,12 +3,17 @@ package br.com.fiap.tech_challenge_2.application.mapper;
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
 import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.RestauranteResponse;
-import br.com.fiap.tech_challenge_2.domain.model.*;
+import br.com.fiap.tech_challenge_2.domain.model.Endereco;
+import br.com.fiap.tech_challenge_2.domain.model.ItemCardapio;
+import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
+import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
+import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,8 +24,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RestauranteMapperTest {
-    @InjectMocks
-    private RestauranteMapperImpl restauranteMapper;
+    
+    @Mock
+    private ItemCardapioMapper itemCardapioMapper;
+    
+    private RestauranteMapper restauranteMapper;
 
     private Restaurante domainRestaurante;
     private RestauranteRequest restauranteRequest;
@@ -32,6 +40,12 @@ public class RestauranteMapperTest {
 
     @BeforeEach
     void setUp() {
+        // Criar o mapper usando MapStruct
+        restauranteMapper = new RestauranteMapperImpl();
+        
+        // Injetar o mock do ItemCardapioMapper
+        ReflectionTestUtils.setField(restauranteMapper, "itemCardapioMapper", itemCardapioMapper);
+        
         enderecoDTO = new EnderecoDTO("Rua Teste", "123", "Apto 1", "Centro", "São Paulo", "SP", "01234567");
         domainEndereco = new Endereco(1L, "Rua Teste", "123", "Apto 1", "Centro", "São Paulo", "SP", "01234567");
 
