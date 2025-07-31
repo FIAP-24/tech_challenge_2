@@ -1,14 +1,14 @@
 package br.com.fiap.tech_challenge_2.application.usecase.impl;
 
-import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteDTO;
-import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
+import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequest;
+import br.com.fiap.tech_challenge_2.application.dto.response.RestauranteResponse;
 import br.com.fiap.tech_challenge_2.application.mapper.RestauranteMapper;
+import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
 import br.com.fiap.tech_challenge_2.application.usecase.CreateRestauranteUseCase;
 import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import br.com.fiap.tech_challenge_2.domain.service.RestauranteDomainService;
-import br.com.fiap.tech_challenge_2.domain.service.UsuarioDomainService;
-import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundException;
+import br.com.fiap.tech_challenge_2.interfaces.exception.DuplicateResourceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,38 +17,36 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreateRestauranteUseCaseImpl implements CreateRestauranteUseCase {
 
-    private final UsuarioDomainService usuarioDomainService;
+    private final UsuarioService usuarioService;
     private final RestauranteDomainService restauranteDomainService;
-    private final EnderecoMapper enderecoMapper;
-    private final RestauranteMapper mapper;
+    private final RestauranteMapper restauranteMapper;
 
     @Override
     @Transactional
-    public Restaurante execute(RestauranteDTO request) {
+    public RestauranteResponse execute(RestauranteRequest request) {
         // Validate request
         validateRequest(request);
-        
-        // Find owner user
-        Usuario owner = usuarioDomainService.findUserById(request.donoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário dono não encontrado com id: " + request.donoId()));
 
-        // Create restaurant
-        Restaurante restaurante = new Restaurante();
-        restaurante.setNome(request.nome());
-        restaurante.setTipoCozinha(request.tipoCozinha());
-        restaurante.setHorarioFuncionamento(request.horarioFuncionamento());
-        restaurante.setDono(owner);
-        
-        // Set address if provided
-        if (request.endereco() != null) {
-            restaurante.setEndereco(enderecoMapper.toEndereco(request.endereco()));
+        // Check if name is available
+        if (!restauranteDomainService.isRestauranteNameAvailable(request.nome())) {
+            throw new DuplicateResourceException("Nome de restaurante já está em uso");
         }
 
+
+        // Find owner user
+        Usuario donoDomain = usuarioService.findById(request.donoId());
+
+        // Convert to domain entity
+        Restaurante restaurante = restauranteMapper.toEntity(request);
+        restaurante.setDono(donoDomain);
+
         // Use domain service to create restaurant
-        return restauranteDomainService.createRestaurante(restaurante);
+        Restaurante saved = restauranteDomainService.createRestaurante(restaurante);
+
+        return restauranteMapper.toResponse(saved);
     }
 
-    private void validateRequest(RestauranteDTO request) {
+    private void validateRequest(RestauranteRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Request cannot be null");
         }

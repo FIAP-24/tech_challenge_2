@@ -4,11 +4,9 @@ import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
 import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
-import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
 import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
 import br.com.fiap.tech_challenge_2.domain.model.TipoUsuario;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
-import br.com.fiap.tech_challenge_2.domain.repository.UsuarioRepository;
 import br.com.fiap.tech_challenge_2.domain.service.UsuarioDomainService;
 import br.com.fiap.tech_challenge_2.infrastructure.utils.PasswordHasher;
 import br.com.fiap.tech_challenge_2.interfaces.exception.DuplicateResourceException;
@@ -41,22 +39,18 @@ class UsuarioServiceImplTest {
     @Mock
     private PasswordHasher passwordHasher;
 
-    private UsuarioRepository usuarioRepository;
-
     @InjectMocks
     private UsuarioServiceImpl usuarioService;
 
     private UsuarioRequest usuarioRequest;
     private Usuario domainUsuario;
-    private UsuarioResponse usuarioResponse;
     private TipoUsuarioDTO tipoUsuarioDTO;
     private TipoUsuario tipoUsuario;
     private UsuarioEditRequest usuarioEditRequest;
-    EnderecoDTO enderecoDTO;
+    private EnderecoDTO enderecoDTO;
 
     @BeforeEach
     void setUp() {
-        tipoUsuarioDTO = new TipoUsuarioDTO(1L, "CLIENTE");
         tipoUsuario = new TipoUsuario(1L, "CLIENTE");
 
         usuarioRequest = new UsuarioRequest("John Doe", "john@email.com", 1l, "johndoe", "password123", null);
@@ -70,8 +64,6 @@ class UsuarioServiceImplTest {
         domainUsuario.setDataUpdate(LocalDate.now());
         enderecoDTO = new EnderecoDTO("Rua 123", "10", null, "Jacana", "Sao Paulo", "SP", "00012010");
 
-        usuarioResponse = new UsuarioResponse(1L, "John Doe", tipoUsuarioDTO, "john@email.com", "johndoe", enderecoDTO, LocalDate.now());
-
         usuarioEditRequest = new UsuarioEditRequest("John Doe", "john@email.com", 1L, "johndoe", enderecoDTO);
     }
 
@@ -82,24 +74,22 @@ class UsuarioServiceImplTest {
         when(passwordHasher.hashPassword(any())).thenReturn("hashedPassword");
         when(usuarioMapper.toEntity(any(UsuarioRequest.class))).thenReturn(domainUsuario);
         when(usuarioDomainService.createUser(any(Usuario.class))).thenReturn(domainUsuario);
-        when(usuarioMapper.toResponse(any(Usuario.class))).thenReturn(usuarioResponse);
 
         // When
-        UsuarioResponse result = usuarioService.save(usuarioRequest);
+        Usuario result = usuarioService.save(usuarioRequest);
 
         // Then
         assertNotNull(result);
-        assertEquals(usuarioResponse.id(), result.id());
-        assertEquals(usuarioResponse.nome(), result.nome());
-        assertEquals(usuarioResponse.email(), result.email());
-        assertEquals(usuarioResponse.login(), result.login());
-        assertEquals(usuarioResponse.tipoUsuario().nome(), result.tipoUsuario().nome());
+        assertEquals(domainUsuario.getId(), result.getId());
+        assertEquals(domainUsuario.getNome(), result.getNome());
+        assertEquals(domainUsuario.getEmail(), result.getEmail());
+        assertEquals(domainUsuario.getLogin(), result.getLogin());
+        assertEquals(domainUsuario.getTipoUsuario().getNome(), result.getTipoUsuario().getNome());
 
         verify(usuarioDomainService).isLoginAvailable("johndoe");
         verify(passwordHasher).hashPassword("password123");
         verify(usuarioMapper).toEntity(usuarioRequest);
         verify(usuarioDomainService).createUser(domainUsuario);
-        verify(usuarioMapper).toResponse(domainUsuario);
     }
 
     @Test
@@ -130,21 +120,19 @@ class UsuarioServiceImplTest {
     void testFindById_Success() {
         // Given
         when(usuarioDomainService.findUserById(1L)).thenReturn(Optional.of(domainUsuario));
-        when(usuarioMapper.toResponse(any(Usuario.class))).thenReturn(usuarioResponse);
 
         // When
-        UsuarioResponse result = usuarioService.findById(1L);
+        Usuario result = usuarioService.findById(1L);
 
         // Then
         assertNotNull(result);
-        assertEquals(usuarioResponse.id(), result.id());
-        assertEquals(usuarioResponse.nome(), result.nome());
-        assertEquals(usuarioResponse.email(), result.email());
-        assertEquals(usuarioResponse.login(), result.login());
-        assertEquals(usuarioResponse.tipoUsuario().nome(), result.tipoUsuario().nome());
+        assertEquals(domainUsuario.getId(), result.getId());
+        assertEquals(domainUsuario.getNome(), result.getNome());
+        assertEquals(domainUsuario.getEmail(), result.getEmail());
+        assertEquals(domainUsuario.getLogin(), result.getLogin());
+        assertEquals(domainUsuario.getTipoUsuario().getNome(), result.getTipoUsuario().getNome());
 
         verify(usuarioDomainService).findUserById(1L);
-        verify(usuarioMapper).toResponse(domainUsuario);
     }
 
     @Test
@@ -177,18 +165,16 @@ class UsuarioServiceImplTest {
     void testFindAll_Success() {
         // Given
         List<Usuario> domainUsuarios = List.of(domainUsuario);
-        Set<UsuarioResponse> expectedResponses = Set.of(usuarioResponse);
         when(usuarioDomainService.findAllUsers()).thenReturn(domainUsuarios);
 
         // When
-        Set<UsuarioResponse> result = usuarioService.findAll();
+        Set<Usuario> result = usuarioService.findAll();
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
 
         verify(usuarioDomainService).findAllUsers();
-        verify(usuarioMapper).toResponse(domainUsuario);
     }
 
     @Test
@@ -196,19 +182,18 @@ class UsuarioServiceImplTest {
         // Given
         when(usuarioDomainService.findUserById(1L)).thenReturn(Optional.of(domainUsuario));
         when(usuarioDomainService.updateUser(any(Usuario.class))).thenReturn(domainUsuario);
-        when(usuarioMapper.toResponse(any(Usuario.class))).thenReturn(usuarioResponse);
 
         // When
-        UsuarioResponse result = usuarioService.update(1L, usuarioEditRequest);
+        Usuario result = usuarioService.update(1L, usuarioEditRequest);
 
         // Then
         assertNotNull(result);
-        assertEquals(usuarioResponse.id(), result.id());
-        assertEquals(usuarioResponse.nome(), result.nome());
-        assertEquals(usuarioResponse.email(), result.email());
-        assertEquals(usuarioResponse.login(), result.login());
-        assertEquals(usuarioResponse.tipoUsuario().nome(), result.tipoUsuario().nome());
-        assertEquals(usuarioResponse.endereco(), result.endereco());
+        assertEquals(domainUsuario.getId(), result.getId());
+        assertEquals(domainUsuario.getNome(), result.getNome());
+        assertEquals(domainUsuario.getEmail(), result.getEmail());
+        assertEquals(domainUsuario.getLogin(), result.getLogin());
+        assertEquals(domainUsuario.getTipoUsuario().getNome(), result.getTipoUsuario().getNome());
+        assertEquals(domainUsuario.getEndereco(), result.getEndereco());
 
         verify(usuarioDomainService).findUserById(1L);
     }

@@ -3,7 +3,6 @@ package br.com.fiap.tech_challenge_2.application.service.impl;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioLoginRequest;
 import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioRequest;
-import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
 import br.com.fiap.tech_challenge_2.application.mapper.UsuarioMapper;
 import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
 import br.com.fiap.tech_challenge_2.domain.model.Endereco;
@@ -30,7 +29,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public UsuarioResponse save(UsuarioRequest request) {
+    public Usuario save(UsuarioRequest request) {
         // Check if login is available
         if (!usuarioDomainService.isLoginAvailable(request.login())) {
             throw new DuplicateResourceException("Login já está em uso");
@@ -41,23 +40,20 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setSenha(passwordHasher.hashPassword(request.senha()));
 
         // Use domain service
-        Usuario saved = usuarioDomainService.createUser(usuario);
-        return usuarioMapper.toResponse(saved);
+        return usuarioDomainService.createUser(usuario);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Set<UsuarioResponse> findAll() {
+    public Set<Usuario> findAll() {
         return usuarioDomainService.findAllUsers().stream()
-                .map(usuarioMapper::toResponse)
                 .collect(Collectors.toSet());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UsuarioResponse findById(Long id) {
+    public Usuario findById(Long id) {
         return usuarioDomainService.findUserById(id)
-                .map(usuarioMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + id));
     }
 
@@ -76,7 +72,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public UsuarioResponse update(Long id, UsuarioEditRequest request) {
+    public Usuario update(Long id, UsuarioEditRequest request) {
         Usuario existingUsuario = usuarioDomainService.findUserById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com id: " + id));
 
@@ -84,8 +80,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         updateUsuarioData(request, existingUsuario);
 
         // Use domain service to update
-        Usuario updated = usuarioDomainService.updateUser(existingUsuario);
-        return usuarioMapper.toResponse(updated);
+        return usuarioDomainService.updateUser(existingUsuario);
     }
 
     private void updateUsuarioData(UsuarioEditRequest request, Usuario existingUsuario) {

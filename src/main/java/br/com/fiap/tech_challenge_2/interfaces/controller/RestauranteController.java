@@ -1,8 +1,13 @@
 package br.com.fiap.tech_challenge_2.interfaces.controller;
 
-import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequest;
 import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
+import br.com.fiap.tech_challenge_2.application.dto.response.RestauranteResponse;
 import br.com.fiap.tech_challenge_2.application.service.RestauranteService;
+import br.com.fiap.tech_challenge_2.application.usecase.CreateRestauranteUseCase;
+import br.com.fiap.tech_challenge_2.application.usecase.DeleteRestauranteUseCase;
+import br.com.fiap.tech_challenge_2.application.usecase.FindRestauranteUseCase;
+import br.com.fiap.tech_challenge_2.application.usecase.UpdateRestauranteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -12,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/restaurantes")
@@ -19,40 +25,48 @@ import java.util.List;
 @Tag(name = "Restaurantes", description = "Operações para gerenciamento de restaurantes")
 public class RestauranteController {
 
-    private final RestauranteService service;
+    private final CreateRestauranteUseCase createRestauranteUseCase;
+    private final FindRestauranteUseCase findRestauranteUseCase;
+    private final UpdateRestauranteUseCase updateRestauranteUseCase;
+    private final DeleteRestauranteUseCase deleteRestauranteUseCase;
 
     @Operation(summary = "Cria um novo restaurante")
     @PostMapping
-    public ResponseEntity<ApiResponse<RestauranteDTO>> create(@Valid @RequestBody RestauranteDTO dto) {
-        RestauranteDTO created = service.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(created, "Restaurante criado com sucesso"));
+    public ResponseEntity<ApiResponse<RestauranteResponse>> create(@Valid @RequestBody RestauranteRequest restauranteRequest) {
+        RestauranteResponse created = createRestauranteUseCase.execute(restauranteRequest);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success(created, "Restaurante criado com sucesso"));
     }
 
     @Operation(summary = "Busca um restaurante por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RestauranteDTO>> findById(@PathVariable Long id) {
-        RestauranteDTO dto = service.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(dto));
+    public ResponseEntity<ApiResponse<RestauranteResponse>> findById(@PathVariable Long id) {
+        RestauranteResponse restaurante = findRestauranteUseCase.findById(id);
+        return ResponseEntity.ok(ApiResponse.success(restaurante));
     }
 
     @Operation(summary = "Lista todos os restaurantes")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RestauranteDTO>>> findAll() {
-        List<RestauranteDTO> dtos = service.findAll();
-        return ResponseEntity.ok(ApiResponse.success(dtos));
+    public ResponseEntity<ApiResponse<Set<RestauranteResponse>>> findAll() {
+        Set<RestauranteResponse> restaurantes = findRestauranteUseCase.findAll();
+        return ResponseEntity.ok(ApiResponse.success(restaurantes));
     }
 
     @Operation(summary = "Atualiza um restaurante")
     @PutMapping("/id")
-    public ResponseEntity<ApiResponse<RestauranteDTO>> update(@PathVariable Long id, @Valid @RequestBody RestauranteDTO dto) {
-        var updated = service.update(id, dto);
+    public ResponseEntity<ApiResponse<RestauranteResponse>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody RestauranteRequest restauranteRequest
+    ) {
+        RestauranteResponse updated = updateRestauranteUseCase.execute(id, restauranteRequest);
         return ResponseEntity.ok(ApiResponse.success(updated, "Restaurante atualizado com sucesso"));
     }
 
     @Operation(summary = "Remove um restaurante")
     @DeleteMapping("/id")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
-        service.delete(id);
+        deleteRestauranteUseCase.execute(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Restaurante removido com sucesso"));
     }
 }
