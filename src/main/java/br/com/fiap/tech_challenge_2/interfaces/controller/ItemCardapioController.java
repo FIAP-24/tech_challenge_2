@@ -4,6 +4,7 @@ import br.com.fiap.tech_challenge_2.application.dto.request.ItemCardapioRequestD
 import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
 import br.com.fiap.tech_challenge_2.application.dto.response.ItemCardapioResponse;
 import br.com.fiap.tech_challenge_2.application.usecase.CreateItemCardapioUseCase;
+import br.com.fiap.tech_challenge_2.application.usecase.DeleteItemCardapioUseCase;
 import br.com.fiap.tech_challenge_2.application.usecase.FindItemCardapioUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +24,7 @@ public class ItemCardapioController {
 
     private final CreateItemCardapioUseCase createItemCardapioUseCase;
     private final FindItemCardapioUseCase findItemCardapioUseCase;
+    private final DeleteItemCardapioUseCase deleteItemCardapioUseCase;
 
     @Operation(summary = "Lista todos os itens do cardápio.")
     @GetMapping
@@ -60,4 +62,11 @@ public class ItemCardapioController {
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(created, "Item do cardápio criado com sucesso"));
     }
-} 
+
+    @Operation(summary = "Deleta um item do cardápio por ID.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        deleteItemCardapioUseCase.execute(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Item do cardápio removido com sucesso"));
+    }
+}

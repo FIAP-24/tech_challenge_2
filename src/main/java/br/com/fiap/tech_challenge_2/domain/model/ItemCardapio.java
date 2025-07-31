@@ -1,6 +1,6 @@
 package br.com.fiap.tech_challenge_2.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ public class ItemCardapio {
     private BigDecimal preco;
     private boolean disponivelApenasNoLocal;
     private String fotoPath;
-    @JsonIgnore
+
     private Restaurante restaurante;
 
     // Domain business logic methods
