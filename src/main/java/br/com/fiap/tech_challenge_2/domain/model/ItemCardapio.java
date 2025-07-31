@@ -1,6 +1,6 @@
 package br.com.fiap.tech_challenge_2.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
