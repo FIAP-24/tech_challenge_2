@@ -1,9 +1,9 @@
 package br.com.fiap.tech_challenge_2.interfaces.controller;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.ItemCardapioRequestDTO;
-import br.com.fiap.tech_challenge_2.application.dto.request.UsuarioEditRequest;
+
 import br.com.fiap.tech_challenge_2.application.dto.response.ApiResponse;
-import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
+
 import br.com.fiap.tech_challenge_2.application.usecase.CreateItemCardapioUseCase;
 import br.com.fiap.tech_challenge_2.application.usecase.DeleteItemCardapioUseCase;
 import br.com.fiap.tech_challenge_2.application.usecase.FindItemCardapioUseCase;
