@@ -20,7 +20,7 @@ public class ItemCardapio {
     private BigDecimal preco;
     private boolean disponivelApenasNoLocal;
     private String fotoPath;
-    @JsonIgnore
+
     private Restaurante restaurante;
 
     // Domain business logic methods
