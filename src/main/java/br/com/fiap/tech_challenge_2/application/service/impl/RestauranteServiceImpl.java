@@ -1,82 +1,99 @@
 package br.com.fiap.tech_challenge_2.application.service.impl;
 
-import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteDTO;
-import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
+import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequest;
 import br.com.fiap.tech_challenge_2.application.mapper.RestauranteMapper;
 import br.com.fiap.tech_challenge_2.application.service.RestauranteService;
 import br.com.fiap.tech_challenge_2.domain.model.Endereco;
 import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
-import br.com.fiap.tech_challenge_2.domain.repository.UsuarioRepository;
+import br.com.fiap.tech_challenge_2.domain.service.RestauranteDomainService;
+import br.com.fiap.tech_challenge_2.domain.service.UsuarioDomainService;
+import br.com.fiap.tech_challenge_2.interfaces.exception.DuplicateResourceException;
 import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundException;
-import br.com.fiap.tech_challenge_2.domain.repository.RestauranteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RestauranteServiceImpl implements RestauranteService {
-
-    private final RestauranteRepository repository;
-    private final RestauranteMapper mapper;
-    private final UsuarioRepository usuarioRepository;
-    private final EnderecoMapper enderecoMapper;
+    private final RestauranteDomainService restauranteDomainService;
+    private final RestauranteMapper restauranteMapper;
+    private final UsuarioDomainService usuarioDomainService;
 
     @Override
     @Transactional
-    public RestauranteDTO create(RestauranteDTO dto) {
-        usuarioRepository.findById(dto.donoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário (dono) não encontrado com id: " + dto.donoId()));
+    public Restaurante save(RestauranteRequest request) {
+        if(!restauranteDomainService.isRestauranteNameAvailable(request.nome())){
+            throw new DuplicateResourceException("Nome do restaurante já está em uso");
+        }
 
-        Restaurante restaurante = mapper.toEntity(dto);
-        return mapper.toDTO(repository.save(restaurante));
+        // Convert to domain entity
+        Restaurante restaurante = restauranteMapper.toEntity(request);
+
+        // Use domain service
+        return restauranteDomainService.createRestaurante(restaurante);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public RestauranteDTO findById(Long id) {
-        return repository.findById(id)
-                .map(mapper::toDTO)
+    public Restaurante findById(Long id) {
+        return restauranteDomainService.findRestauranteById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurante não encontrado com id: " + id));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<RestauranteDTO> findAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
+    public Set<Restaurante> findAll() {
+        return restauranteDomainService.findAllRestaurantes().stream()
+                .collect(Collectors.toSet());
     }
 
     @Override
     @Transactional
-    public RestauranteDTO update(Long id, RestauranteDTO dto) {
-        Restaurante restaurante = repository.findById(id)
+    public Restaurante update(Long id, RestauranteRequest request) {
+        Restaurante existingRestaurante = restauranteDomainService.findRestauranteById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurante não encontrado com id: " + id));
 
-        Usuario dono = usuarioRepository.findById(dto.donoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário (dono) não encontrado com id: " + dto.donoId()));
+        updateRestauranteData(request, existingRestaurante);
 
-        Endereco endereco = enderecoMapper.toEndereco(dto.endereco());
+        // Use domain service to update
+        return restauranteDomainService.updateRestaurante(existingRestaurante);
+    }
 
-        restaurante.setNome(dto.nome());
-        restaurante.setTipoCozinha(dto.tipoCozinha());
-        restaurante.setHorarioFuncionamento(dto.horarioFuncionamento());
-        restaurante.setDono(dono);
-        restaurante.setEndereco(endereco);
-        return mapper.toDTO(repository.save(restaurante));
+    private void updateRestauranteData(RestauranteRequest request, Restaurante existingRestaurante) {
+        if (request.nome() != null && !request.nome().isBlank()) {
+            existingRestaurante.setNome(request.nome());
+        }
+        if (request.tipoCozinha() != null && !request.tipoCozinha().isBlank()) {
+            existingRestaurante.setTipoCozinha(request.tipoCozinha());
+        }
+        if (request.horarioFuncionamento() != null && !request.horarioFuncionamento().isBlank()) {
+            existingRestaurante.setHorarioFuncionamento(request.horarioFuncionamento());
+        }
+
+        Usuario dono = usuarioDomainService.findUserById(request.donoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário (dono) não encontrado com id: " + request.donoId()));
+        existingRestaurante.setDono(dono);
+
+        if (request.endereco() != null) {
+            if (existingRestaurante.getEndereco() == null) {
+                existingRestaurante.setEndereco(new Endereco());
+            }
+            existingRestaurante.getEndereco()
+                    .updateAddress(request.endereco().logradouro(), request.endereco().numero(), request.endereco().complemento(), request.endereco().bairro(), request.endereco().cidade(), request.endereco().estado(), request.endereco().cep());
+        }
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
+        if (!restauranteDomainService.findRestauranteById(id).isPresent()) {
             throw new ResourceNotFoundException("Restaurante não encontrado com id: " + id);
         }
-        repository.deleteById(id);
+        restauranteDomainService.deleteRestaurante(id);
     }
 }

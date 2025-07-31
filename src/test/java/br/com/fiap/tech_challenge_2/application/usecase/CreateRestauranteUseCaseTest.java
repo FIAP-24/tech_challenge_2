@@ -1,14 +1,20 @@
 package br.com.fiap.tech_challenge_2.application.usecase;
 
 import br.com.fiap.tech_challenge_2.application.dto.request.EnderecoDTO;
-import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequest;
+import br.com.fiap.tech_challenge_2.application.dto.request.TipoUsuarioDTO;
+import br.com.fiap.tech_challenge_2.application.dto.response.RestauranteResponse;
+import br.com.fiap.tech_challenge_2.application.dto.response.UsuarioResponse;
 import br.com.fiap.tech_challenge_2.application.mapper.EnderecoMapper;
+import br.com.fiap.tech_challenge_2.application.mapper.RestauranteMapper;
+import br.com.fiap.tech_challenge_2.application.service.UsuarioService;
 import br.com.fiap.tech_challenge_2.application.usecase.impl.CreateRestauranteUseCaseImpl;
 import br.com.fiap.tech_challenge_2.domain.model.Endereco;
 import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
 import br.com.fiap.tech_challenge_2.domain.model.Usuario;
 import br.com.fiap.tech_challenge_2.domain.service.RestauranteDomainService;
-import br.com.fiap.tech_challenge_2.domain.service.UsuarioDomainService;
+import br.com.fiap.tech_challenge_2.interfaces.exception.DuplicateResourceException;
+import br.com.fiap.tech_challenge_2.interfaces.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,83 +33,97 @@ class CreateRestauranteUseCaseTest {
     private RestauranteDomainService restauranteDomainService;
 
     @Mock
-    private UsuarioDomainService usuarioDomainService;
+    private RestauranteMapper restauranteMapper;
 
     @Mock
-    private EnderecoMapper enderecoMapper;
+    private UsuarioService usuarioService;
 
     @InjectMocks
     private CreateRestauranteUseCaseImpl createRestauranteUseCase;
 
-    private RestauranteDTO validRequest;
-    private Usuario owner;
+    private RestauranteRequest validRequest;
+    private RestauranteResponse expectedResponse;
+    private Restaurante domainRestaurante;
+    private Usuario dono;
+    private UsuarioResponse donoDTO;
     private Endereco endereco;
-    private Restaurante expectedRestaurante;
+    private TipoUsuarioDTO tipoUsuarioDTO;
 
     @BeforeEach
     void setUp() {
         EnderecoDTO enderecoDTO = new EnderecoDTO("Rua Teste", "123", "Apto 1", "Centro", "São Paulo", "SP", "01234567");
-        validRequest = new RestauranteDTO("Restaurante Teste UseCase", enderecoDTO, "Italiana", "Seg-Sex: 09:00-22:00", 1L);
-        
-        owner = new Usuario();
-        owner.setId(1L);
-        owner.setNome("João Silva");
+        validRequest = new RestauranteRequest("Restaurante Teste UseCase", enderecoDTO, "Italiana", "Seg-Sex: 09:00-22:00", 1L);
+
+        tipoUsuarioDTO = new TipoUsuarioDTO(1L, "CLIENTE");
+
+        donoDTO = new UsuarioResponse(1L, "John Doe", tipoUsuarioDTO, "john@email.com", "johndoe", null, null);
+        dono = new Usuario();
+        dono.setId(1L);
+        dono.setNome("João Silva");
         
         endereco = new Endereco();
         endereco.setLogradouro("Rua Teste");
         endereco.setNumero("123");
-        
-        expectedRestaurante = new Restaurante();
-        expectedRestaurante.setId(1L);
-        expectedRestaurante.setNome("Restaurante Teste UseCase");
-        expectedRestaurante.setTipoCozinha("Italiana");
-        expectedRestaurante.setHorarioFuncionamento("Seg-Sex: 09:00-22:00");
-        expectedRestaurante.setDono(owner);
-        expectedRestaurante.setEndereco(endereco);
+
+        expectedResponse = new RestauranteResponse(1L, "Restaurante Teste UseCase", enderecoDTO,  "Italiana", "Seg-Sex: 09:00-22:00", donoDTO, null);
+
+        domainRestaurante = new Restaurante();
+        domainRestaurante.setId(1L);
+        domainRestaurante.setNome("Restaurante Teste UseCase");
+        domainRestaurante.setTipoCozinha("Italiana");
+        domainRestaurante.setHorarioFuncionamento("Seg-Sex: 09:00-22:00");
+        domainRestaurante.setEndereco(endereco);
     }
 
     @Test
-    void shouldCreateRestauranteSuccessfully() {
+    void textExecute_Success() {
         // Given
-        when(usuarioDomainService.findUserById(1L)).thenReturn(java.util.Optional.of(owner));
-        when(enderecoMapper.toEndereco(any(EnderecoDTO.class))).thenReturn(endereco);
-        when(restauranteDomainService.createRestaurante(any(Restaurante.class))).thenReturn(expectedRestaurante);
+        when(usuarioService.findById(1L)).thenReturn(dono);
+        when(restauranteDomainService.isRestauranteNameAvailable(any())).thenReturn(true);
+        when(restauranteMapper.toEntity(any(RestauranteRequest.class))).thenReturn(domainRestaurante);
+        when(restauranteDomainService.createRestaurante(any(Restaurante.class))).thenReturn(domainRestaurante);
+        when(restauranteMapper.toResponse(any(Restaurante.class))).thenReturn(expectedResponse);
 
         // When
-        Restaurante result = createRestauranteUseCase.execute(validRequest);
+        RestauranteResponse result = createRestauranteUseCase.execute(validRequest);
 
         // Then
         assertNotNull(result);
-        assertEquals(expectedRestaurante.getNome(), result.getNome());
-        assertEquals(expectedRestaurante.getTipoCozinha(), result.getTipoCozinha());
-        assertEquals(expectedRestaurante.getHorarioFuncionamento(), result.getHorarioFuncionamento());
-        
-        verify(usuarioDomainService).findUserById(1L);
-        verify(enderecoMapper).toEndereco(any(EnderecoDTO.class));
-        verify(restauranteDomainService).createRestaurante(any(Restaurante.class));
+        assertEquals(expectedResponse.id(), result.id());
+        assertEquals(expectedResponse.nome(), result.nome());
+        assertEquals(expectedResponse.tipoCozinha(), result.tipoCozinha());
+        assertEquals(expectedResponse.horarioFuncionamento(), result.horarioFuncionamento());
+        assertEquals(expectedResponse.endereco(), result.endereco());
+        assertEquals(expectedResponse.dono().id(), result.dono().id());
+
+        verify(restauranteDomainService).isRestauranteNameAvailable("Restaurante Teste UseCase");
+        verify(restauranteMapper).toEntity(validRequest);
+        verify(restauranteDomainService).createRestaurante(domainRestaurante);
+        verify(restauranteMapper).toResponse(domainRestaurante);
     }
 
     @Test
-    void shouldThrowExceptionWhenOwnerNotFound() {
+    void testExecute_UsuarioNotFound() {
         // Given
-        when(usuarioDomainService.findUserById(1L)).thenReturn(java.util.Optional.empty());
+        when(usuarioService.findById(1L)).thenThrow(new ResourceNotFoundException("Usuário não encontrado com id: 1"));
+        when(restauranteDomainService.isRestauranteNameAvailable(any())).thenReturn(true);
 
         // When & Then
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             createRestauranteUseCase.execute(validRequest);
         });
-        
-        verify(usuarioDomainService).findUserById(1L);
-        verifyNoInteractions(enderecoMapper, restauranteDomainService);
+
+        verify(usuarioService).findById(1L);
+        verify(restauranteDomainService, never()).createRestaurante(any());
     }
 
     @Test
-    void shouldThrowExceptionWhenRequestIsNull() {
+    void testExecute_WithNullRequest() {
         // When & Then
         assertThrows(IllegalArgumentException.class, () -> {
             createRestauranteUseCase.execute(null);
         });
-        
-        verifyNoInteractions(usuarioDomainService, enderecoMapper, restauranteDomainService);
+
+        verify(restauranteDomainService, never()).createRestaurante(any());
     }
 } 

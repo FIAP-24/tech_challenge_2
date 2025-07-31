@@ -18,7 +18,7 @@ public class Restaurante {
     private String tipoCozinha;
     private String horarioFuncionamento;
     private Usuario dono;
-    @JsonIgnore
+//    @JsonIgnore
     private List<ItemCardapio> cardapio;
 
     // Domain business logic methods

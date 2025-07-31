@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record RestauranteDTO(
+public record RestauranteRequest(
         @NotBlank(message = "Nome é obrigatório")
         String nome,
 

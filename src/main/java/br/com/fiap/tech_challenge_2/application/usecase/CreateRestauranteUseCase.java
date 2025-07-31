@@ -1,6 +1,7 @@
 package br.com.fiap.tech_challenge_2.application.usecase;
 
-import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteDTO;
+import br.com.fiap.tech_challenge_2.application.dto.request.RestauranteRequest;
+import br.com.fiap.tech_challenge_2.application.dto.response.RestauranteResponse;
 import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
 
 public interface CreateRestauranteUseCase {
@@ -13,5 +14,5 @@ public interface CreateRestauranteUseCase {
      * @throws IllegalArgumentException if restaurant data is invalid
      * @throws ResourceNotFoundException if owner user not found
      */
-    Restaurante execute(RestauranteDTO request);
+    RestauranteResponse execute(RestauranteRequest request);
 } 
