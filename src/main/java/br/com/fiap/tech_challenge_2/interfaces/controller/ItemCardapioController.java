@@ -71,13 +71,4 @@ public class ItemCardapioController {
         deleteItemCardapioUseCase.execute(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Item do cardápio removido com sucesso"));
     }
-
-    @Operation(summary = "Atualiza um item do cardápio")
-    @PutMapping
-    public ResponseEntity<ApiResponse<UsuarioResponse>> update(
-            @PathVariable Long id,
-            @Valid @RequestBody UsuarioEditRequest usuarioEditRequest) {
-        ItemCardapioResponse updated = itemCardapioUseCase.execute(id, usuarioEditRequest);
-        return ResponseEntity.ok(ApiResponse.success(updated, "Usuário atualizado com sucesso"));
-    }
 } 
