@@ -29,9 +29,8 @@ public class CreateRestauranteUseCaseImpl implements CreateRestauranteUseCase {
 
         // Check if name is available
         if (!restauranteDomainService.isRestauranteNameAvailable(request.nome())) {
-            throw new DuplicateResourceException("Nome de restaurante já está em uso");
+            throw new DuplicateResourceException("Nome do restaurante já está em uso");
         }
-
 
         // Find owner user
         Usuario donoDomain = usuarioService.findById(request.donoId());

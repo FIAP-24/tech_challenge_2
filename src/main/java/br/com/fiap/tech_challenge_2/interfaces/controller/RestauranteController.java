@@ -54,7 +54,7 @@ public class RestauranteController {
     }
 
     @Operation(summary = "Atualiza um restaurante")
-    @PutMapping("/id")
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<RestauranteResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody RestauranteRequest restauranteRequest
@@ -64,7 +64,7 @@ public class RestauranteController {
     }
 
     @Operation(summary = "Remove um restaurante")
-    @DeleteMapping("/id")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         deleteRestauranteUseCase.execute(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Restaurante removido com sucesso"));
