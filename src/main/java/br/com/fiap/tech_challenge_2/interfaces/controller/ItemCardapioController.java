@@ -6,6 +6,7 @@ import br.com.fiap.tech_challenge_2.application.dto.response.ItemCardapioRespons
 import br.com.fiap.tech_challenge_2.application.usecase.CreateItemCardapioUseCase;
 import br.com.fiap.tech_challenge_2.application.usecase.DeleteItemCardapioUseCase;
 import br.com.fiap.tech_challenge_2.application.usecase.FindItemCardapioUseCase;
+import br.com.fiap.tech_challenge_2.application.usecase.UpdateItemCardapioUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,6 +25,7 @@ public class ItemCardapioController {
 
     private final CreateItemCardapioUseCase createItemCardapioUseCase;
     private final FindItemCardapioUseCase findItemCardapioUseCase;
+    private final UpdateItemCardapioUseCase updateItemCardapioUseCase;
     private final DeleteItemCardapioUseCase deleteItemCardapioUseCase;
 
     @Operation(summary = "Lista todos os itens do cardápio.")
@@ -61,6 +63,16 @@ public class ItemCardapioController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(created, "Item do cardápio criado com sucesso"));
+    }
+
+    @Operation(summary = "Atualiza um item do cardápio.")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<ItemCardapioResponse>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody ItemCardapioRequestDTO request
+    ) {
+        ItemCardapioResponse updated = updateItemCardapioUseCase.execute(id, request);
+        return ResponseEntity.ok(ApiResponse.success(updated, "Item do cardápio atualizado com sucesso"));
     }
 
     @Operation(summary = "Deleta um item do cardápio por ID.")
