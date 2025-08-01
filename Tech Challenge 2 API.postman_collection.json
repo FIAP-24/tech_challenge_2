@@ -539,6 +539,53 @@
 					"response": []
 				},
 				{
+					"name": "Listar Itens do Cardápio por Restaurante",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/itens-cardapio/restaurante/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"itens-cardapio",
+								"restaurante",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Itens Disponíveis do Cardápio por Restaurante",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/itens-cardapio/restaurante/1/disponiveis",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"itens-cardapio",
+								"restaurante",
+								"1",
+								"disponiveis"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Atualizar Item do Cardápio",
 					"request": {
 						"method": "PUT",
