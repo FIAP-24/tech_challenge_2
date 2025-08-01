@@ -1,5 +1,7 @@
 package br.com.fiap.tech_challenge_2.application.usecase;
 
+import br.com.fiap.tech_challenge_2.application.dto.response.ItemCardapioResponse;
+import br.com.fiap.tech_challenge_2.application.mapper.ItemCardapioMapper;
 import br.com.fiap.tech_challenge_2.application.usecase.impl.FindItemCardapioUseCaseImpl;
 import br.com.fiap.tech_challenge_2.domain.model.ItemCardapio;
 import br.com.fiap.tech_challenge_2.domain.model.Restaurante;
@@ -25,10 +27,14 @@ class FindItemCardapioUseCaseTest {
     @Mock
     private ItemCardapioDomainService itemCardapioDomainService;
 
+    @Mock
+    private ItemCardapioMapper itemCardapioMapper;
+
     @InjectMocks
     private FindItemCardapioUseCaseImpl findItemCardapioUseCase;
 
     private ItemCardapio itemCardapio;
+    private ItemCardapioResponse itemCardapioResponse;
     private Restaurante restaurante;
 
     @BeforeEach
@@ -46,53 +52,72 @@ class FindItemCardapioUseCaseTest {
         itemCardapio.setDisponivelApenasNoLocal(true);
         itemCardapio.setFotoPath("/fotos/pizza.jpg");
         itemCardapio.setRestaurante(restaurante);
+
+        itemCardapioResponse = new ItemCardapioResponse(
+            1L,
+            "Pizza Margherita",
+            "Pizza tradicional italiana",
+            BigDecimal.valueOf(25.90),
+            true,
+            "/fotos/pizza.jpg",
+            "R$ 25,90"
+        );
     }
 
     @Test
     void testFindAll_Success() {
         // Given
         List<ItemCardapio> itens = List.of(itemCardapio);
+        List<ItemCardapioResponse> responses = List.of(itemCardapioResponse);
         when(itemCardapioDomainService.findAllItemCardapios()).thenReturn(itens);
+        when(itemCardapioMapper.toResponseList(itens)).thenReturn(responses);
 
         // When
-        List<ItemCardapio> result = findItemCardapioUseCase.findAll();
+        List<ItemCardapioResponse> result = findItemCardapioUseCase.findAll();
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(itemCardapio, result.get(0));
+        assertEquals(itemCardapioResponse, result.get(0));
         
         verify(itemCardapioDomainService).findAllItemCardapios();
+        verify(itemCardapioMapper).toResponseList(itens);
     }
 
     @Test
     void testFindAll_EmptyList() {
         // Given
-        when(itemCardapioDomainService.findAllItemCardapios()).thenReturn(List.of());
+        List<ItemCardapio> itens = List.of();
+        List<ItemCardapioResponse> responses = List.of();
+        when(itemCardapioDomainService.findAllItemCardapios()).thenReturn(itens);
+        when(itemCardapioMapper.toResponseList(itens)).thenReturn(responses);
 
         // When
-        List<ItemCardapio> result = findItemCardapioUseCase.findAll();
+        List<ItemCardapioResponse> result = findItemCardapioUseCase.findAll();
 
         // Then
         assertNotNull(result);
         assertTrue(result.isEmpty());
         
         verify(itemCardapioDomainService).findAllItemCardapios();
+        verify(itemCardapioMapper).toResponseList(itens);
     }
 
     @Test
     void testFindById_Success() {
         // Given
         when(itemCardapioDomainService.findItemCardapioById(1L)).thenReturn(Optional.of(itemCardapio));
+        when(itemCardapioMapper.toResponse(itemCardapio)).thenReturn(itemCardapioResponse);
 
         // When
-        ItemCardapio result = findItemCardapioUseCase.findById(1L);
+        ItemCardapioResponse result = findItemCardapioUseCase.findById(1L);
 
         // Then
         assertNotNull(result);
-        assertEquals(itemCardapio, result);
+        assertEquals(itemCardapioResponse, result);
         
         verify(itemCardapioDomainService).findItemCardapioById(1L);
+        verify(itemCardapioMapper).toResponse(itemCardapio);
     }
 
     @Test
@@ -108,6 +133,7 @@ class FindItemCardapioUseCaseTest {
         assertEquals("Item do cardápio não encontrado com id: 999", exception.getMessage());
         
         verify(itemCardapioDomainService).findItemCardapioById(999L);
+        verify(itemCardapioMapper, never()).toResponse(any());
     }
 
     @Test
@@ -120,38 +146,46 @@ class FindItemCardapioUseCaseTest {
         assertEquals("ID cannot be null", exception.getMessage());
         
         verify(itemCardapioDomainService, never()).findItemCardapioById(any());
+        verify(itemCardapioMapper, never()).toResponse(any());
     }
 
     @Test
     void testFindByRestauranteId_Success() {
         // Given
         List<ItemCardapio> itens = List.of(itemCardapio);
+        List<ItemCardapioResponse> responses = List.of(itemCardapioResponse);
         when(itemCardapioDomainService.findItemCardapiosByRestauranteId(1L)).thenReturn(itens);
+        when(itemCardapioMapper.toResponseList(itens)).thenReturn(responses);
 
         // When
-        List<ItemCardapio> result = findItemCardapioUseCase.findByRestauranteId(1L);
+        List<ItemCardapioResponse> result = findItemCardapioUseCase.findByRestauranteId(1L);
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(itemCardapio, result.get(0));
+        assertEquals(itemCardapioResponse, result.get(0));
         
         verify(itemCardapioDomainService).findItemCardapiosByRestauranteId(1L);
+        verify(itemCardapioMapper).toResponseList(itens);
     }
 
     @Test
     void testFindByRestauranteId_EmptyList() {
         // Given
-        when(itemCardapioDomainService.findItemCardapiosByRestauranteId(1L)).thenReturn(List.of());
+        List<ItemCardapio> itens = List.of();
+        List<ItemCardapioResponse> responses = List.of();
+        when(itemCardapioDomainService.findItemCardapiosByRestauranteId(1L)).thenReturn(itens);
+        when(itemCardapioMapper.toResponseList(itens)).thenReturn(responses);
 
         // When
-        List<ItemCardapio> result = findItemCardapioUseCase.findByRestauranteId(1L);
+        List<ItemCardapioResponse> result = findItemCardapioUseCase.findByRestauranteId(1L);
 
         // Then
         assertNotNull(result);
         assertTrue(result.isEmpty());
         
         verify(itemCardapioDomainService).findItemCardapiosByRestauranteId(1L);
+        verify(itemCardapioMapper).toResponseList(itens);
     }
 
     @Test
@@ -164,38 +198,46 @@ class FindItemCardapioUseCaseTest {
         assertEquals("Restaurante ID cannot be null", exception.getMessage());
         
         verify(itemCardapioDomainService, never()).findItemCardapiosByRestauranteId(any());
+        verify(itemCardapioMapper, never()).toResponseList(any());
     }
 
     @Test
     void testFindAvailableByRestauranteId_Success() {
         // Given
         List<ItemCardapio> itens = List.of(itemCardapio);
+        List<ItemCardapioResponse> responses = List.of(itemCardapioResponse);
         when(itemCardapioDomainService.findAvailableItemCardapiosByRestauranteId(1L)).thenReturn(itens);
+        when(itemCardapioMapper.toResponseList(itens)).thenReturn(responses);
 
         // When
-        List<ItemCardapio> result = findItemCardapioUseCase.findAvailableByRestauranteId(1L);
+        List<ItemCardapioResponse> result = findItemCardapioUseCase.findAvailableByRestauranteId(1L);
 
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(itemCardapio, result.get(0));
+        assertEquals(itemCardapioResponse, result.get(0));
         
         verify(itemCardapioDomainService).findAvailableItemCardapiosByRestauranteId(1L);
+        verify(itemCardapioMapper).toResponseList(itens);
     }
 
     @Test
     void testFindAvailableByRestauranteId_EmptyList() {
         // Given
-        when(itemCardapioDomainService.findAvailableItemCardapiosByRestauranteId(1L)).thenReturn(List.of());
+        List<ItemCardapio> itens = List.of();
+        List<ItemCardapioResponse> responses = List.of();
+        when(itemCardapioDomainService.findAvailableItemCardapiosByRestauranteId(1L)).thenReturn(itens);
+        when(itemCardapioMapper.toResponseList(itens)).thenReturn(responses);
 
         // When
-        List<ItemCardapio> result = findItemCardapioUseCase.findAvailableByRestauranteId(1L);
+        List<ItemCardapioResponse> result = findItemCardapioUseCase.findAvailableByRestauranteId(1L);
 
         // Then
         assertNotNull(result);
         assertTrue(result.isEmpty());
         
         verify(itemCardapioDomainService).findAvailableItemCardapiosByRestauranteId(1L);
+        verify(itemCardapioMapper).toResponseList(itens);
     }
 
     @Test
@@ -208,5 +250,6 @@ class FindItemCardapioUseCaseTest {
         assertEquals("Restaurante ID cannot be null", exception.getMessage());
         
         verify(itemCardapioDomainService, never()).findAvailableItemCardapiosByRestauranteId(any());
+        verify(itemCardapioMapper, never()).toResponseList(any());
     }
 } 

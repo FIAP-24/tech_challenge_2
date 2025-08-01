@@ -29,3 +29,6 @@ buildNumber.properties
 logs/
 *.log
 /.idea/
+
+# VS Code
+.vscode
