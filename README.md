@@ -381,7 +381,7 @@ mvn jacoco:report
 
 ### Cobertura de Testes
 - **Cobertura Geral**: 75%
-- **Total de Testes**: 192 testes
+- **Total de Testes**: 308 testes
 - **Testes Unitários**: Lógica de domínio, casos de uso e serviços
 - **Testes de Integração**: Testes de repositório e controladores
 
