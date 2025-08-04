@@ -35,7 +35,7 @@ public class ItemCardapioEntity {
     @Column
     private String fotoPath;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "restaurante_id", nullable = false)
     @JsonIgnore
     private RestauranteEntity restaurante;

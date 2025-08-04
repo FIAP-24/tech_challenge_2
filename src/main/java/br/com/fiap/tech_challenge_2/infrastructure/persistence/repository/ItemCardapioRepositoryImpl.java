@@ -5,6 +5,7 @@ import br.com.fiap.tech_challenge_2.domain.repository.ItemCardapioRepository;
 import br.com.fiap.tech_challenge_2.infrastructure.persistence.entity.ItemCardapioEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +38,9 @@ public class ItemCardapioRepositoryImpl implements ItemCardapioRepository {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
-        jpaRepository.deleteById(id);
+            jpaRepository.deleteItemById(id);
     }
 
     @Override
